@@ -9,7 +9,7 @@ using namespace std;
 
 struct Bagaj {
     int id;
-    string pnr_sahibi;   // Yolcu::pnr ile eşleşen kimlik (Hash Table için)
+    string pnr_sahibi;   // Yolcu::pnr ile eşleşen kimlik (Hash Table içinn)
     float agirlik;
 };
 
