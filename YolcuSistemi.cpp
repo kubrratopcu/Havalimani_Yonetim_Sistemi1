@@ -62,4 +62,7 @@ void yolculariListele(YolcuNode* kok) {
 
     // 3. Adım: Son olarak sağ alt ağacı (alfabetik olarak daha büyük olanları) ziyaret et.
     yolculariListele(kok->sag);
+
+
+
 }
