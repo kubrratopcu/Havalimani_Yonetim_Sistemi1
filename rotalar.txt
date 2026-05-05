@@ -3,3 +3,6 @@ Ankara,Izmir,600
 Istanbul,Erzurum,1200
 Izmir,Antalya,450
 Antalya,Ankara,500
+Kütahya,Ankara,600
+Çankırı,Ankara,350
+Malatya,Çankırı,800
