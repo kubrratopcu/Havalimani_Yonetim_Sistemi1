@@ -3,83 +3,58 @@
 
 #include <string>
 #include <vector>
+#include <stack> // Stack (Yığın) yapısı için eklendi
 
 using namespace std;
 
-/**
- * @brief Ucak Modeli
- * Kübra'nın Priority Queue (Öncelikli Kuyruk) yapısında kullanılacaktır.
- */
+struct Bagaj {
+    int id;
+    string pnr_sahibi;   // Yolcu::pnr ile eşleşen kimlik (Hash Table için)
+    float agirlik;
+};
+
+struct Sefer {
+    string seferNo;
+    int ucakId;          // Hangi fiziksel uçağın bu seferi yaptığı
+    long long ucusZamani;
+
+    // Bu seferdeki koltukların doluluk durumunu tutan matris
+    // [20] sıra, [6] sütun (A, B, C, D, E, F)
+    bool koltukDurumu[20][6] = {false};
+
+    vector<string> yolcuPnrListesi; // Seferdeki yolcuların PNR listesi
+
+    // Adem'in LIFO (Son Giren İlk Çıkar) mantığı burada çalışacak:
+    // Her seferin kendi bagaj yığını (Stack) olur.
+    stack<Bagaj> kargoBolumu;
+};
+
 struct Ucak {
-    int id;              // Benzersiz Uçak Kimliği
-    string havayolu;     // Havayolu Şirketi
-    int yakit;           // Yakıt Miktarı (0-100 arası gibi düşünülebilir)
-    long long varisZamani; // YYYYMMDDHHMM formatında (Örn: 202605101530)
+    int id;
+    string havayolu;
+    int yakit;
+    long long varisZamani;
     int kapasite = 120; // Sadece toplam sınırı bilmek için
-    /**
-     * @brief Öncelik Belirleme Operatörü
-     * Kuyrukta uçakları şu mantıkla sıralar:
-     * 1. Önce varış zamanı en yakın (küçük sayı) olan en üste çıkar.
-     * 2. Eğer zamanlar aynıysa, yakıtı en az olan (kritik durum) en üste çıkar.
-     */
+
+    // Priority Queue (Heap) için çok kriterli sıralama mantığı
     bool operator<(const Ucak& diger) const {
-        if (varisZamani != diger.varisZamani) {
-            // Priority Queue 'max-heap' mantığıyla çalıştığı için
-            // '>' operatörü küçük olan zamanı (en yakını) üste taşır.
-            return varisZamani > diger.varisZamani;
-        }
-        // Zamanlar eşitse yakıtı az olan öncelik kazanır.
+        // Önce zamana bak, zamanlar eşitse yakıtı az olan öne geçsin
+        if (varisZamani != diger.varisZamani) return varisZamani > diger.varisZamani;
         return yakit > diger.yakit;
     }
 };
 
-/**
- * @brief Sefer Modeli
- * Yolcuları ve uçakları bağlayan köprü yapısı.
- */
-struct Sefer {
-    string seferNo;      // Uçuş Kodu (Örn: TK1920)
-    int ucakId;          // Ucak::id ile eşleşen kimlik no
-    string kalkisYeri;
-    string varisYeri;
-    // Bu seferdeki koltukların doluluk durumunu tutan matris
-    // [20] sıra, [6] sütun (A, B, C, D, E, F)
-    bool koltukDurumu[20][6] = {false};
-    long long ucusZamani; // Uçağın varış zamanı ile aynı tutulacak veri
-    vector<string> yolcuPnrListesi; // Bu uçuştaki yolcuların PNR listesi
-    // Adem'in LIFO (Son Giren İlk Çıkar) mantığı burada çalışacak:
-    stack<Bagaj> kargoBolumu;
-};
-
-/**
- * @brief Yolcu Modeli
- * Beyza'nın Hash Table (unordered_map) yapısı için.
- */
 struct Yolcu {
     string ad;
     string soyad;
     string pnr;          // Hash anahtarı (Key)
-    string koltuk;
+    string koltuk;       // Sadece etiket/bilgi amaçlı (Fiziksel kontrol Sefer'in matrisinde yapılır)
 };
 
-/**
- * @brief Bagaj Modeli
- * Adem'in Stack (Yığın) yapısı için.
- */
-struct Bagaj {
-    int id;
-    string pnr_sahibi;   // Yolcu::pnr ile eşleşen kimlik
-    float agirlik;
-};
-
-/**
- * @brief Rota Modeli
- * Kübra'nın Dijkstra Algoritması için.
- */
 struct Rota {
-    string kaynak;
-    string hedef;
-    int mesafe;
+    string kaynak;       // Başlangıç Şehri (Düğüm/Node A)
+    string hedef;        // Varış Şehri (Düğüm/Node B)
+    int mesafe;          // İki şehir arası uzaklık (Kenar Ağırlığı/Edge Weight)
 };
 
-#endif // MODELLER_H
+#endif
