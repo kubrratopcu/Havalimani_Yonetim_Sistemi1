@@ -39,7 +39,7 @@ struct Ucak {
  */
 struct Sefer {
     string seferNo;      // Uçuş Kodu (Örn: TK1920)
-    int ucakId;          // Ucak::id ile eşleşen kimlik
+    int ucakId;          // Ucak::id ile eşleşen kimlik no
     string kalkisYeri;
     string varisYeri;
     // Bu seferdeki koltukların doluluk durumunu tutan matris
