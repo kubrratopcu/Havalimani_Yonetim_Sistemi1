@@ -1,68 +1,66 @@
-#include <unordered_map>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <unordered_map>
+#include "Modeller.h"
 
 using namespace std;
 
-// (Not: Yolcu yapısının (struct/class) bu kod bloğundan önce
-// tanımlandığı varsayılmıştır. İçerisinde 'ad', 'soyad' ve 'pnr' olmalıdır.)
-
-// --- Ağaç Düğümü (Node) Yapısı ---
-// Ağaç veri yapısındaki her bir elemanı (düğümü) temsil eden yapı.
+// İkili Arama Ağacı (BST) için düğüm yapısı
 struct YolcuNode {
-    Yolcu veri;         // Düğümün içinde tutulan asıl veri (Yolcu nesnesi)
-    YolcuNode *sol;     // Alfabetik olarak daha "küçük" (önce gelen) düğümü işaret eden gösterici (pointer)
-    YolcuNode *sag;     // Alfabetik olarak daha "büyük" (sonra gelen) düğümü işaret eden gösterici (pointer)
-
-    // Kurucu (Constructor) Fonksiyon: Yeni bir düğüm oluşturulduğunda ilk değerlerini atar.
-    // 'sol' ve 'sag' başlangıçta nullptr (boş) olarak ayarlanır çünkü yeni eklenen bir düğümün henüz çocukları yoktur (o bir yapraktır).
+    Yolcu veri;
+    YolcuNode *sol, *sag;
     YolcuNode(Yolcu y) : veri(y), sol(nullptr), sag(nullptr) {}
 };
 
-// --- BST'ye (İkili Arama Ağacına) Alfabetik Ekleme Fonksiyonu ---
-// Bu fonksiyon özyinelemeli (recursive) çalışır. Doğru yeri bulana kadar ağacın dallarında aşağı iner.
+// Yolcuyu adına göre alfabetik olarak ağaca ekleyen özyinelemeli (recursive) fonksiyon
 YolcuNode* agacaYolcuEkle(YolcuNode* kok, Yolcu y) {
-    // 1. Temel Durum (Base Case):
-    // Eğer bulunduğumuz düğüm boşsa (nullptr), aradığımız boş yeri bulduk demektir.
-    // Yeni düğümü burada oluşturup geri döndürüyoruz.
-    if (kok == nullptr) return new YolcuNode(y);
+    if (kok == nullptr) return new YolcuNode(y); // Boş yere ulaşıldığında yeni düğümü oluştur
 
-    // 2. Sola Gitme Durumu:
-    // Eklenmek istenen yolcunun adı, mevcut düğümdeki yolcunun adından alfabetik olarak önce geliyorsa.
-    // (Örn: "Ahmet" < "Mehmet")
     if (y.ad < kok->veri.ad)
-        // Sol alt ağaca git ve ekleme işlemini orada tekrarla.
-        // Dönen yeni adresi mevcut düğümün sol çocuğu olarak güncelle.
-        kok->sol = agacaYolcuEkle(kok->sol, y);
-
-    // 3. Sağa Gitme Durumu:
-    // Eklenmek istenen yolcunun adı alfabetik olarak sonra geliyorsa veya aynıysa.
-    // (Örn: "Zeynep" > "Mehmet")
+        kok->sol = agacaYolcuEkle(kok->sol, y); // İsim alfabetik olarak önce geliyorsa sola git
     else
-        // Sağ alt ağaca git ve işlemi tekrarla.
-        kok->sag = agacaYolcuEkle(kok->sag, y);
+        kok->sag = agacaYolcuEkle(kok->sag, y); // İsim sonra geliyorsa sağa git
 
-    // Ağacın yapısı bozulmasın diye, üzerinde işlem yaptığımız düğümün kendisini (kökünü) geri döndürüyoruz.
     return kok;
 }
 
-// --- Ağacı Alfabetik Yazdıran Fonksiyon (In-order Traversal) ---
-// İkili arama ağaçlarında verileri küçükten büyüğe (alfabetik) sıralı almak için
-// "In-order" (Sol Alt Ağaç -> Kök -> Sağ Alt Ağaç) gezinme yöntemi kullanılır.
+// Dosyadan okunan yolcuları hem Hash Table'a hem de BST'ye yükler
+void yolculariYukle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok) {
+    ifstream dosya("yolcular.txt");
+    string satir;
+
+    if (!dosya.is_open()) {
+        cerr << "Hata: yolcular.txt acilamadi!" << endl;
+        return;
+    }
+
+    // Dosyayı satır satır oku
+    while (getline(dosya, satir)) {
+        stringstream ss(satir);
+        string ad, soyad, pnr, koltuk;
+
+        // Virgülle ayrılmış yolcu bilgilerini değişkenlere aktar
+        getline(ss, ad, ',');
+        getline(ss, soyad, ',');
+        getline(ss, pnr, ',');
+        getline(ss, koltuk, ',');
+
+        Yolcu y = {ad, soyad, pnr, koltuk};
+
+        harita[pnr] = y;              // PNR ile anında arama (O(1)) için Hash Table'a ekle
+        kok = agacaYolcuEkle(kok, y); // Alfabetik sıralama yapabilmek için Ağaca (BST) ekle
+    }
+
+    dosya.close();
+    cout << "[-] Yolcu Sistemi: Yolcular Hash Table ve BST'ye yuklendi." << endl;
+}
+
+// In-order (Sol-Kök-Sağ) dolaşma yöntemiyle yolcuları alfabetik sırada yazdırır
 void yolculariListele(YolcuNode* kok) {
-    // Temel Durum: Eğer düğüm boşsa geri dön (fonksiyondan çık).
-    // Bu aynı zamanda ağacın o dalının sonuna geldiğimizi belirtir.
-    if (kok == nullptr) return;
+    if (kok == nullptr) return; // Ağaç/Düğüm boşsa geri dön
 
-    // 1. Adım: Önce sol alt ağacı (alfabetik olarak en küçük olanları) ziyaret et.
-    yolculariListele(kok->sol);
-
-    // 2. Adım: Mevcut düğümdeki veriyi (kökü) ekrana yazdır.
-    // Sol taraf tamamen yazdırıldıktan sonra sıra ortadaki elemana gelir.
-    cout << kok->veri.ad << " " << kok->veri.soyad << " - PNR: " << kok->veri.pnr << endl;
-
-    // 3. Adım: Son olarak sağ alt ağacı (alfabetik olarak daha büyük olanları) ziyaret et.
-    yolculariListele(kok->sag);
-
-
-
+    yolculariListele(kok->sol); // Önce alfabetik olarak daha küçük olan sol tarafı gez
+    cout << "    * " << kok->veri.ad << " " << kok->veri.soyad << " (" << kok->veri.pnr << ")" << endl;
+    yolculariListele(kok->sag); // Sonra alfabetik olarak daha büyük olan sağ tarafı gez
 }
