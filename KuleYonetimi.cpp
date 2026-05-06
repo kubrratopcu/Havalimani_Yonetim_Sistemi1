@@ -1,73 +1,108 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <queue>
-#include <map>
-#include <vector>
+#include <iostream>   // cout, cerr
+#include <fstream>    // dosya okuma (ifstream)
+#include <sstream>    // stringstream (CSV parçalama)
+#include <queue>      // priority_queue
+#include <map>        // map veri yapısı
+#include <vector>     // vector (komşuluk listesi)
+#include <set>        // set (öncelikli kuyruk gibi kullanılıyor)
 #include "Modeller.h"
 
 using namespace std;
 
-// Uçakları dosyadan okuyup Priority Queue'ya (Öncelik Kuyruğu atar
+// =====================================================
+// UÇAKLARI DOSYADAN OKUYUP PRIORITY QUEUE'YA YÜKLER
+// =====================================================
 void ucaklariYukle(priority_queue<Ucak>& kule) {
-    ifstream dosya("ucaklar.txt"); // Dosyayı okumak için aç
+
+    // Dosyayı aç
+    ifstream dosya("ucaklar.txt");
     string satir;
 
+    // Dosya açılamazsa hata ver ve çık
     if (!dosya.is_open()) {
-        cerr << "Hata: ucaklar.txt acilamadi!" << endl;
+        cerr << "[!] Hata: ucaklar.txt acilamadi!" << endl;
         return;
     }
 
-    // Dosyayı satır satır sonuna kadar oku
+    // Dosyayı satır satır oku
     while (getline(dosya, satir)) {
+
+        // Satırı parçalamak için stringstream kullan
         stringstream ss(satir);
+
+        // CSV alanları
         string id, havayolu, yakit, zaman;
 
-        // Virgülle ayrılmış verileri ilgili değişkenlere böl
-        getline(ss, id, ',');
-        getline(ss, havayolu, ',');
-        getline(ss, yakit, ',');
-        getline(ss, zaman, ',');
+        // Virgüle göre ayır
+        getline(ss, id, ',');        // uçak ID
+        getline(ss, havayolu, ',');  // havayolu adı
+        getline(ss, yakit, ',');     // yakıt miktarı
+        getline(ss, zaman, ',');     // varış zamanı
 
-        // Okunan string verilerini uygun tiplere dönüştürerek Ucak nesnesi oluştur
+        // Eğer veri eksikse bu satırı atla
+        if (id.empty() || yakit.empty() || zaman.empty())
+            continue;
+
+        // Ucak nesnesi oluştur
         Ucak u;
-        u.id = stoi(id);
+        u.id = stoi(id);             // string → int
         u.havayolu = havayolu;
         u.yakit = stoi(yakit);
-        u.varisZamani = stoll(zaman);
+        u.varisZamani = stoll(zaman); // string → long long
 
-        kule.push(u); // Kuyruğa ekle (Heap yapısı sayesinde otomatik sıralanır)
+        // Priority Queue'ya ekle
+        // NOT: Bu yapı otomatik olarak önceliğe göre sıralar (heap)
+        kule.push(u);
     }
 
+
     dosya.close();
+
+    // Bilgi mesajı
     cout << "[-] Kule: Ucaklar yuklendi ve siralandi." << endl;
 }
 
-// Rotaları Graf yapısına (Komşuluk Listesi) yükler
+
+// =====================================================
+// ROTALARI GRAF YAPISINA (KOMŞULUK LİSTESİ) YÜKLER
+// =====================================================
 void rotalariYukle(map<string, vector<pair<string, int>>>& graf) {
+
     ifstream dosya("rotalar.txt");
     string satir;
 
-    if (!dosya.is_open()) return; // Dosya açılamazsa işlem yapmadan çık
+    // Dosya açılamazsa hata ver
+    if (!dosya.is_open()) {
+        cerr << "[!] Hata: rotalar.txt acilamadi!" << endl;
+        return;
+    }
 
-    // Rotaları satır satır oku
+    // Satır satır oku
     while (getline(dosya, satir)) {
+
         stringstream ss(satir);
+
         string kaynak, hedef, mesafe;
 
-        // Virgülle ayrılmış güzergah bilgilerini ayrıştır
-        getline(ss, kaynak, ',');
-        getline(ss, hedef, ',');
-        getline(ss, mesafe, ',');
+        // CSV verisini ayır
+        getline(ss, kaynak, ','); // başlangıç şehir
+        getline(ss, hedef, ',');  // hedef şehir
+        getline(ss, mesafe, ','); // mesafe
 
-        // String olan mesafeyi int'e çevirip grafın komşuluk listesine ekle
+        // Eksik veri varsa atla
+        if (kaynak.empty() || hedef.empty() || mesafe.empty())
+            continue;
+
+        // Graf'a ekle
+        // pair<hedef, mesafe>
         graf[kaynak].push_back({hedef, stoi(mesafe)});
     }
 
     dosya.close();
+
     cout << "[-] Kule: Rotalar graf yapisina islendi." << endl;
 }
-#include <set>   // set veri yapısı (öncelikli kuyruk gibi kullanılacak)
+
 
 // =====================================================
 // DIJKSTRA ALGORİTMASI İLE EN KISA YOL HESAPLAMA
@@ -81,70 +116,84 @@ void enKisaYoluBul(map<string, vector<pair<string, int>>>& graf,
     // ---------------------------------------------
     map<string, int> mesafeler;
 
-    // Tüm şehirler için başlangıçta mesafeyi "sonsuz" yap
-    // (1e9 ≈ çok büyük bir sayı → ulaşılmamış anlamında)
+    // Tüm şehirler için başlangıçta mesafeyi sonsuz yap
+    // (1e9 = ulaşılmamış gibi düşünülür)
     for (auto const& [sehir, _] : graf)
         mesafeler[sehir] = 1e9;
 
-    // Başlangıç noktasının mesafesi 0'dır
+    // Eğer başlangıç şehir graf'ta yoksa hata ver
+    if (!graf.count(baslangic)) {
+        cout << "[!] Baslangic noktasi graf'ta yok!" << endl;
+        return;
+    }
+
+    // Başlangıç noktası sıfır
     mesafeler[baslangic] = 0;
 
     // ---------------------------------------------
-    // 2. ÖNCELİKLİ KUYRUK (SET) OLUŞTUR
+    // 2. ÖNCELİKLİ KUYRUK (SET)
     // ---------------------------------------------
-    // pair<int, string> → (mesafe, şehir)
-    // set → otomatik olarak küçükten büyüğe sıralar
+    // pair<mesafe, şehir>
     set<pair<int, string>> kuyruk;
 
-    // Başlangıç düğümünü kuyruğa ekle
+    // Başlangıç düğümünü ekle
     kuyruk.insert({0, baslangic});
 
     // ---------------------------------------------
-    // 3. ANA DÖNGÜ (DIJKSTRA)
+    // 3. ANA DIJKSTRA DÖNGÜSÜ
     // ---------------------------------------------
     while (!kuyruk.empty()) {
 
-        // En küçük mesafeli düğümü al
-        // (set'in başı her zaman en küçük değerdir)
-        string u = kuyruk.begin()->second;
+        // En küçük mesafeli elemanı al
+        auto it = kuyruk.begin();
 
-        // Kuyruktan çıkar (işlendi artık)
-        kuyruk.erase(kuyruk.begin());
+        int mevcutMesafe = it->first;
+        string u = it->second;
+
+        // Kuyruktan çıkar (işlendi)
+        kuyruk.erase(it);
+
+        // Eğer hedefe ulaştıysak çık (optimizasyon)
+        if (u == hedef)
+            break;
 
         // -----------------------------------------
-        // KOMŞULARI GEZ
+        // KOMŞULARI DOLAŞ
         // -----------------------------------------
-        // graf[u] → u şehrinin komşuları
         for (auto& komsu : graf[u]) {
 
-            // komsu.first → komşu şehir (v)
-            // komsu.second → o yola ait ağırlık (mesafe)
-            string v = komsu.first;
-            int agirlik = komsu.second;
+            string v = komsu.first;   // komşu şehir
+            int agirlik = komsu.second; // yol mesafesi
 
             // -------------------------------------
-            // RELAXATION (EN KRİTİK KISIM 💥)
+            // RELAXATION (en kritik adım)
             // -------------------------------------
             // Eğer u üzerinden gitmek daha kısa ise
-            if (mesafeler[u] + agirlik < mesafeler[v]) {
+            if (mevcutMesafe + agirlik < mesafeler[v]) {
 
                 // Eski değeri kuyruktan sil
-                // (set'te güncelleme yok → silip tekrar ekliyoruz)
                 kuyruk.erase({mesafeler[v], v});
 
                 // Yeni daha kısa mesafeyi ata
-                mesafeler[v] = mesafeler[u] + agirlik;
+                mesafeler[v] = mevcutMesafe + agirlik;
 
-                // Güncellenmiş değeri tekrar kuyruğa ekle
+                // Güncellenmiş değeri kuyruğa ekle
                 kuyruk.insert({mesafeler[v], v});
             }
         }
     }
 
     // ---------------------------------------------
-    // 4. SONUÇ YAZDIR
+    // 4. SONUÇ
     // ---------------------------------------------
-    cout << "[#] " << baslangic << " -> " << hedef
-         << " en kisa mesafe: " << mesafeler[hedef]
-         << " km" << endl;
+    if (mesafeler[hedef] == 1e9) {
+        cout << "[!] Yol bulunamadi!" << endl;
+    } else {
+        cout << "[#] " << baslangic << " -> " << hedef
+             << " en kisa mesafe: "
+             << mesafeler[hedef] << " km" << endl;
+    }
 }
+// NOT:
+// Dijkstra algoritması negatif ağırlıklı kenarlarda doğru sonuç vermez.
+// Bu sistem yalnızca pozitif mesafeler için uygundur.
