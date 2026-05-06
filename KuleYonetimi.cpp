@@ -67,3 +67,84 @@ void rotalariYukle(map<string, vector<pair<string, int>>>& graf) {
     dosya.close();
     cout << "[-] Kule: Rotalar graf yapisina islendi." << endl;
 }
+#include <set>   // set veri yapısı (öncelikli kuyruk gibi kullanılacak)
+
+// =====================================================
+// DIJKSTRA ALGORİTMASI İLE EN KISA YOL HESAPLAMA
+// =====================================================
+void enKisaYoluBul(map<string, vector<pair<string, int>>>& graf,
+                   string baslangic,
+                   string hedef) {
+
+    // ---------------------------------------------
+    // 1. MESAFE HARİTASI OLUŞTUR
+    // ---------------------------------------------
+    map<string, int> mesafeler;
+
+    // Tüm şehirler için başlangıçta mesafeyi "sonsuz" yap
+    // (1e9 ≈ çok büyük bir sayı → ulaşılmamış anlamında)
+    for (auto const& [sehir, _] : graf)
+        mesafeler[sehir] = 1e9;
+
+    // Başlangıç noktasının mesafesi 0'dır
+    mesafeler[baslangic] = 0;
+
+    // ---------------------------------------------
+    // 2. ÖNCELİKLİ KUYRUK (SET) OLUŞTUR
+    // ---------------------------------------------
+    // pair<int, string> → (mesafe, şehir)
+    // set → otomatik olarak küçükten büyüğe sıralar
+    set<pair<int, string>> kuyruk;
+
+    // Başlangıç düğümünü kuyruğa ekle
+    kuyruk.insert({0, baslangic});
+
+    // ---------------------------------------------
+    // 3. ANA DÖNGÜ (DIJKSTRA)
+    // ---------------------------------------------
+    while (!kuyruk.empty()) {
+
+        // En küçük mesafeli düğümü al
+        // (set'in başı her zaman en küçük değerdir)
+        string u = kuyruk.begin()->second;
+
+        // Kuyruktan çıkar (işlendi artık)
+        kuyruk.erase(kuyruk.begin());
+
+        // -----------------------------------------
+        // KOMŞULARI GEZ
+        // -----------------------------------------
+        // graf[u] → u şehrinin komşuları
+        for (auto& komsu : graf[u]) {
+
+            // komsu.first → komşu şehir (v)
+            // komsu.second → o yola ait ağırlık (mesafe)
+            string v = komsu.first;
+            int agirlik = komsu.second;
+
+            // -------------------------------------
+            // RELAXATION (EN KRİTİK KISIM 💥)
+            // -------------------------------------
+            // Eğer u üzerinden gitmek daha kısa ise
+            if (mesafeler[u] + agirlik < mesafeler[v]) {
+
+                // Eski değeri kuyruktan sil
+                // (set'te güncelleme yok → silip tekrar ekliyoruz)
+                kuyruk.erase({mesafeler[v], v});
+
+                // Yeni daha kısa mesafeyi ata
+                mesafeler[v] = mesafeler[u] + agirlik;
+
+                // Güncellenmiş değeri tekrar kuyruğa ekle
+                kuyruk.insert({mesafeler[v], v});
+            }
+        }
+    }
+
+    // ---------------------------------------------
+    // 4. SONUÇ YAZDIR
+    // ---------------------------------------------
+    cout << "[#] " << baslangic << " -> " << hedef
+         << " en kisa mesafe: " << mesafeler[hedef]
+         << " km" << endl;
+}
