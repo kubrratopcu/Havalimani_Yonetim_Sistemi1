@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <stack> // Stack (Yığın) yapısı için eklendi
+#include <stack> // Stack (Yığın yapısı için eklendi
 
 using namespace std;
 
