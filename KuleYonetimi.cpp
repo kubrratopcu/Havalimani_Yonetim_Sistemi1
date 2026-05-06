@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// Uçakları dosyadan okuyup Priority Queue'ya (Öncelik Kuyruğu) atar
+// Uçakları dosyadan okuyup Priority Queue'ya (Öncelik Kuyruğu atar
 void ucaklariYukle(priority_queue<Ucak>& kule) {
     ifstream dosya("ucaklar.txt"); // Dosyayı okumak için aç
     string satir;

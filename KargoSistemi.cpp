@@ -34,7 +34,7 @@ void seferleriYukle(map<string, Sefer>& seferSistemi) {
     cout << "[-] Sefer Sistemi: Seferler yuklendi." << endl;
 }
 
-// Bagajları okuyup ilgili seferin Stack'ine atıyoruz
+// Bagajları okuyup ilgili seferin Stack ine atıyoruz
 void bagajlariYukle(map<string, Sefer>& seferSistemi) {
     ifstream dosya("bagajlar.txt");
     string satir;

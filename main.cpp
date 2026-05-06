@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// Fonksiyon Bildirimleri (Forward Declarations)
+// Fonksiyon Bildirimleri (Forward Declarations),
 // KuleYonetimi.cpp'den
 void ucaklariYukle(priority_queue<Ucak>& kule);
 void rotalariYukle(map<string, vector<pair<string, int>>>& graf);
