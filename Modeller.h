@@ -41,7 +41,7 @@ struct Bagaj {
 // 4. LINKED LIST (Bağlı Liste) DÜĞÜM YAPISI
 struct PnrNode {
     string pnr;
-    struct PnrNode* next;
+    struct PnrNode *next;
 };
 
 // 5. SEFER YAPISI

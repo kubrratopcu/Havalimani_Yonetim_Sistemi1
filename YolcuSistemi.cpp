@@ -151,3 +151,20 @@ void yeniYolcuEkle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok, Sefer&
              << ") bos koltuk kalmamistir! Kayit yapilamadi." << endl;
     }
 }
+// Belleği serbest bırakma (Memory Deallocation)
+void agaciTemizle(YolcuNode* kok) {
+    if (kok == NULL) return;
+    agaciTemizle(kok->sol);
+    agaciTemizle(kok->sag);
+    free(kok); // C mantığıyla temizle
+}
+
+void seferListesiniTemizle(PnrNode*& bas) {
+    PnrNode* akim = bas;
+    while (akim != NULL) {
+        PnrNode* sonraki = akim->next;
+        free(akim);
+        akim = sonraki;
+    }
+    bas = NULL;
+}
