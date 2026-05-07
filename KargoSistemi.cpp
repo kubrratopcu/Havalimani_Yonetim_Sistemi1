@@ -116,3 +116,22 @@ void bagajlariYukle(map<string, Sefer>& seferSistemi) {
     // Bilgi mesajı
     cout << "[-] Kargo Sistemi: Bagajlar ucaklarin yiginina (Stack) yuklendi." << endl;
 }
+void bagajlariTahliyeEt(Sefer& secilenSefer) {
+    cout << "\n[LIFO] " << secilenSefer.seferNo << " seferi bagajlari bosaltiliyor..." << endl;
+
+    if (secilenSefer.kargoBolumu.empty()) {
+        cout << "(!) Bu seferde bagaj bulunmamaktadir." << endl;
+        return;
+    }
+
+    int sira = 1;
+    while (!secilenSefer.kargoBolumu.empty()) {
+        Bagaj b = secilenSefer.kargoBolumu.top(); // En üstteki bagajı al
+        cout << sira << ". Tahliye Edilen Bagaj -> ID: " << b.id
+             << " | Sahibi (PNR): " << b.pnr_sahibi << endl;
+
+        secilenSefer.kargoBolumu.pop(); // Yığından çıkar
+        sira++;
+    }
+    cout << "[✔] Tum bagajlar teslim noktasına gonderildi." << endl;
+}
