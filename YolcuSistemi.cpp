@@ -6,6 +6,9 @@
 
 using namespace std;
 
+// --- LINKED LIST (BAĞLI LİSTE) DÜĞÜM YAPISI ---
+
+
 // ikili arama ağacı (BST) için temel düğüm yapısı oluşturulması
 struct YolcuNode {
     Yolcu veri;             // Yolcu bilgilerini tutan struct
@@ -13,6 +16,28 @@ struct YolcuNode {
     struct YolcuNode *sag;  // Sağ kol (Pointer)
 };
 // Burada Yolcu struct yapısı tüm yolcuya ait değişkenler için geçerlidir. Tüm değişkenleri alır.
+
+// --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
+// Seferin içindeki PNR listesine yeni bir düğüm ekler (Linked List Mantığı)
+void seferListesineEkle(PnrNode*& bas, string pnr) {
+    // Malloc ile bellekte yeni bir PNR düğümü oluştur
+    PnrNode* yeni = (PnrNode*)malloc(sizeof(PnrNode));
+    yeni->pnr = pnr;
+    yeni->next = NULL;
+
+    // Eğer liste boşsa, ilk düğüm bu olur
+    if (bas == NULL) {
+        bas = yeni;
+    } else {
+        // Listenin sonuna kadar yürü (Traversal)
+        PnrNode* gecici = bas;
+        while (gecici->next != NULL) {
+            gecici = gecici->next;
+        }
+        // Son düğümün 'next'ini yeni düğüme bağla
+        gecici->next = yeni;
+    }
+}
 
 // malloc ve NULL mantığıyla yeni düğüm oluşturma fonksiyonu
 struct YolcuNode* yeniDugumOlustur(Yolcu y) {
@@ -108,6 +133,10 @@ void yeniYolcuEkle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok, Sefer&
                 Yolcu y = {ad, soyad, pnr, koltukNo};
                 harita[pnr] = y;
                 kok = agacaYolcuEkle(kok, y);
+
+                // --- LINKED LIST ENTEGRASYONU ---
+                // Yeni yolcuyu seferin içindeki bağlı listeye de ekliyoruz
+                seferListesineEkle(secilenSefer.yolcuListesiBasi, pnr);
 
                 cout << "[+] Yolcu Kaydedildi! PNR: " << pnr << " Koltuk: " << koltukNo << endl;
                 yerBulundu = true;

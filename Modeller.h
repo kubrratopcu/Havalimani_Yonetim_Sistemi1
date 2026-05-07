@@ -1,60 +1,58 @@
-#ifndef MODELLER_H
-#define MODELLER_H
+#pragma once
 
 #include <string>
 #include <vector>
-#include <stack> // Stack (Yığın yapısı için eklendi
+#include <stack>
 
 using namespace std;
 
-struct Bagaj {
-    int id;
-    string pnr_sahibi;   // Yolcu::pnr ile eşleşen kimlik (Hash Table içinn)
-    float agirlik;
-};
-
-struct Sefer {
-    string seferNo;
-    int ucakId;          // Hangi fiziksel uçağın bu seferi yaptığı
-    long long ucusZamani;
-
-    // Bu seferdeki koltukların doluluk durumunu tutan matris
-    // [20] sıra, [6] sütun (A, B, C, D, E, F)
-    bool koltukDurumu[20][6] = {false};
-
-    vector<string> yolcuPnrListesi; // Seferdeki yolcuların PNR listesi
-
-    // Adem'in LIFO (Son Giren İlk Çıkar) mantığı burada çalışacak:
-    // Her seferin kendi bagaj yığını (Stack) olur.
-    stack<Bagaj> kargoBolumu;
-};
-
+// 1. UÇAK YAPISI
 struct Ucak {
     int id;
     string havayolu;
     int yakit;
     long long varisZamani;
-    int kapasite = 120; // Sadece toplam sınırı bilmek için
 
-    // Priority Queue (Heap) için çok kriterli sıralama mantığı
+    // Priority Queue (Öncelikli Kuyruk) için karşılaştırma operatörü
     bool operator<(const Ucak& diger) const {
-        // Önce zamana bak, zamanlar eşitse yakıtı az olan öne geçsin
-        if (varisZamani != diger.varisZamani) return varisZamani > diger.varisZamani;
+        if (yakit == diger.yakit) {
+            return varisZamani > diger.varisZamani;
+        }
         return yakit > diger.yakit;
     }
 };
 
+// 2. YOLCU YAPISI
 struct Yolcu {
     string ad;
     string soyad;
-    string pnr;          // Hash anahtarı (Key)
-    string koltuk;       // Sadece etiket/bilgi amaçlı (Fiziksel kontrol Sefer'in matrisinde yapılır)
+    string pnr;
+    string koltukNo;
+};
+// 3. BAGAJ YAPISI (Stack İçin)
+struct Bagaj {
+    int id;
+    string pnr_sahibi;
+    float agirlik; // --- İŞTE BU SATIRI EKLEDİK ---
 };
 
-struct Rota {
-    string kaynak;       // Başlangıç Şehri (Düğüm/Node A)
-    string hedef;        // Varış Şehri (Düğüm/Node B)
-    int mesafe;          // İki şehir arası uzaklık (Kenar Ağırlığı/Edge Weight)
+
+
+// 4. LINKED LIST (Bağlı Liste) DÜĞÜM YAPISI
+struct PnrNode {
+    string pnr;
+    struct PnrNode* next;
 };
 
-#endif
+// 5. SEFER YAPISI
+struct Sefer {
+    string seferNo;
+    int ucakId;
+    long long ucusZamani;
+    bool koltukDurumu[20][6] = {false};
+    vector<string> yolcuPnrListesi;
+    stack<Bagaj> kargoBolumu;
+
+    // Linked List Başlangıç Noktası
+    PnrNode* yolcuListesiBasi = nullptr;
+};
