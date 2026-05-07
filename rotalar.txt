@@ -1,8 +1,6 @@
-Ankara,Istanbul,450
+Ankara,Baku,1450
+Antalya,Moskova,2100
+Istanbul,Paris,2200
 Ankara,Izmir,600
-Istanbul,Erzurum,1200
-Izmir,Antalya,450
-Antalya,Ankara,500
-Kütahya,Ankara,600
-Çankırı,Ankara,350
-Malatya,Çankırı,800
+Munih,Istanbul,1550
+Ankara,Trabzon,730
