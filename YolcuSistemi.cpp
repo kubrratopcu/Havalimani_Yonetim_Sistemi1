@@ -6,27 +6,48 @@
 
 using namespace std;
 
-// İkili Arama Ağacı (BST) için düğüm yapısı
+// ikili arama ağacı (BST) için temel düğüm yapısı oluşturulması
 struct YolcuNode {
-    Yolcu veri;
-    YolcuNode *sol, *sag;
-    YolcuNode(Yolcu y) : veri(y), sol(nullptr), sag(nullptr) {}
+    Yolcu veri;             // Yolcu bilgilerini tutan struct
+    struct YolcuNode *sol;  // Sol kol (Pointer)
+    struct YolcuNode *sag;  // Sağ kol (Pointer)
 };
+// Burada Yolcu struct yapısı tüm yolcuya ait değişkenler için geçerlidir. Tüm değişkenleri alır.
 
-// Yolcuyu adına göre alfabetik olarak ağaca ekleyen özyinelemeli (recursive) fonksiyon
-YolcuNode* agacaYolcuEkle(YolcuNode* kok, Yolcu y) {
-    if (kok == nullptr) return new YolcuNode(y); // Boş yere ulaşıldığında yeni düğümü oluştur
+// malloc ve NULL mantığıyla yeni düğüm oluşturma fonksiyonu
+struct YolcuNode* yeniDugumOlustur(Yolcu y) {
+    struct YolcuNode* yeni = (struct YolcuNode*)malloc(sizeof(struct YolcuNode));
 
-    if (y.ad < kok->veri.ad)
-        kok->sol = agacaYolcuEkle(kok->sol, y); // İsim alfabetik olarak önce geliyorsa sola git
-    else
-        kok->sag = agacaYolcuEkle(kok->sag, y); // İsim sonra geliyorsa sağa git
-
-    return kok;
+    yeni->veri = y;         // Veriyi düğümün içine kopyala
+    yeni->sol = NULL;       // Sol kolu boşalt
+    yeni->sag = NULL;       // Sağ kolu boşalt
+    return yeni;            // Hazırlanan düğümün adresini döndür
 }
 
-// Dosyadan okunan yolcuları hem Hash Table'a hem de BST'ye yükler
-void yolculariYukle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok) {
+// Ağaca Ekleme (Recursive)
+// Yolcunun adına bakarak alfabetik olarak nereye gideceğini bulur.
+struct YolcuNode* agacaYolcuEkle(struct YolcuNode* kok, Yolcu y) {
+    // Eğer baktığımız dal boşsa, yeni düğümü buraya yerleştir
+    if (kok == NULL) {
+        return yeniDugumOlustur(y);
+    }
+
+    //y.ad mantığı: y tüm struct yapısı .ad ise o struct yapısındaki ad değişkeni yani yolcunun ismi
+
+    // Alfabetik karşılaştırma: Yeni isim mevcut düğümden küçükse SOLA
+    if (y.ad < kok->veri.ad) {
+        kok->sol = agacaYolcuEkle(kok->sol, y);
+    }
+    // Alfabetik olarak büyükse SAĞA
+    else {
+        kok->sag = agacaYolcuEkle(kok->sag, y);
+    }
+
+    return kok; // Bağlantıları güncel tutmak için kökü döndür
+}
+
+// Dosyadan Yükleme
+void yolculariYukle(unordered_map<string, Yolcu>& harita, struct YolcuNode*& kok) {
     ifstream dosya("yolcular.txt");
     string satir;
 
@@ -35,12 +56,10 @@ void yolculariYukle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok) {
         return;
     }
 
-    // Dosyayı satır satır oku
     while (getline(dosya, satir)) {
         stringstream ss(satir);
         string ad, soyad, pnr, koltuk;
 
-        // Virgülle ayrılmış yolcu bilgilerini değişkenlere aktar
         getline(ss, ad, ',');
         getline(ss, soyad, ',');
         getline(ss, pnr, ',');
@@ -48,19 +67,58 @@ void yolculariYukle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok) {
 
         Yolcu y = {ad, soyad, pnr, koltuk};
 
-        harita[pnr] = y;              // PNR ile anında arama (O(1)) için Hash Table'a ekle
-        kok = agacaYolcuEkle(kok, y); // Alfabetik sıralama yapabilmek için Ağaca (BST) ekle
-    }
+        // HASH TABLE: PNR ile hızlı erişim için
+        harita[pnr] = y;
 
+        // BST (AĞAÇ): Alfabetik listeleme için
+        kok = agacaYolcuEkle(kok, y);
+    }
     dosya.close();
-    cout << "[-] Yolcu Sistemi: Yolcular Hash Table ve BST'ye yuklendi." << endl;
+    cout << "[-] Yolcu Sistemi: Veriler C mantigiyla yuklendi." << endl;
 }
 
-// In-order (Sol-Kök-Sağ) dolaşma yöntemiyle yolcuları alfabetik sırada yazdırır
-void yolculariListele(YolcuNode* kok) {
-    if (kok == nullptr) return; // Ağaç/Düğüm boşsa geri dön
+// In-order Listeleme (Sol-Kök-Sağ)
+// Bu fonksiyon ağacı en soldan başlayarak gezer, böylece A'dan Z'ye çıktı verir.
+void yolculariListele(struct YolcuNode* kok) {
+    if (kok == NULL) return; // Durma koşulu
 
-    yolculariListele(kok->sol); // Önce alfabetik olarak daha küçük olan sol tarafı gez
+    yolculariListele(kok->sol); // Önce küçükleri (Solu) gez
+
+    // Mevcut (Kök) düğümü yazdır
     cout << "    * " << kok->veri.ad << " " << kok->veri.soyad << " (" << kok->veri.pnr << ")" << endl;
-    yolculariListele(kok->sag); // Sonra alfabetik olarak daha büyük olan sağ tarafı gez
+
+    yolculariListele(kok->sag); // Sonra büyükleri (Sağı) gez
+}
+
+void yeniYolcuEkle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok, Sefer& secilenSefer) {
+    string ad, soyad, pnr;
+    cout << "Ad: "; cin >> ad;
+    cout << "Soyad: "; cin >> soyad;
+    pnr = "PNR" + to_string(rand() % 9000 + 1000);
+
+    bool yerBulundu = false; // Yer bulup bulmadığımızı takip eden bayrak (flag)
+
+    // Koltuk Bulma (Matriste ilk boş yeri bulur)
+    for(int i = 0; i < 20; i++) {
+        for(int j = 0; j < 6; j++) {
+            if(!secilenSefer.koltukDurumu[i][j]) {
+                secilenSefer.koltukDurumu[i][j] = true;
+                string koltukNo = to_string(i + 1) + (char)('A' + j);
+
+                Yolcu y = {ad, soyad, pnr, koltukNo};
+                harita[pnr] = y;
+                kok = agacaYolcuEkle(kok, y);
+
+                cout << "[+] Yolcu Kaydedildi! PNR: " << pnr << " Koltuk: " << koltukNo << endl;
+                yerBulundu = true;
+                return; // Yer bulunduğu an fonksiyon biter
+            }
+        }
+    }
+
+    // EĞER DÖNGÜLER BİTTİ VE BURAYA GELDİYSEK:
+    if (!yerBulundu) {
+        cout << "[!!!] HATA: Bu seferde (Sefer No: " << secilenSefer.seferNo
+             << ") bos koltuk kalmamistir! Kayit yapilamadi." << endl;
+    }
 }
