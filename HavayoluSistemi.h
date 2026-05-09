@@ -14,27 +14,34 @@
 
 using namespace std;
 
+// Havalimanı Yönetim Sistemi Ana Sınıfı
 class HavayoluSistemi {
 private:
-    // Sınıfın kendi özel veri yapıları
-    map<string, Sefer> seferSistemi;
-    priority_queue<Ucak> kule;
-    map<string, vector<pair<string, int>>> graf;
-    unordered_map<string, Yolcu> harita;
-    YolcuNode* yolcuAgaciKoku;
+    // --- ÖZEL VERİ YAPILARI (Private: Sadece bu sınıf erişebilir) ---
+    map<string, Sefer> seferSistemi;             // Sefer No'ya göre tüm uçuş detaylarını saklayan sözlük
+    priority_queue<Ucak> kule;                   // İniş önceliğine (yakıt/acil durum) göre uçakları sıralayan yığın (Heap)
+    map<string, vector<pair<string, int>>> graf; // Şehirler arası uçuş rotalarını tutan komşuluk listesi
+    unordered_map<string, Yolcu> harita;         // PNR kodundan yolcu ismine O(1) hızında ulaşmamızı sağlayan Hash Table
+    YolcuNode* yolcuAgaciKoku;                   // Yolcuları alfabetik sıralayan İkili Arama Ağacı'nın (BST) başlangıç noktası
 
 public:
+    // --- SINIF METOTLARI (Public: Dışarıdan çağrılabilir) ---
+
+    // Yapıcı Metot (Constructor): Sistem belleğe yüklendiğinde ilk ayarları yapar
     HavayoluSistemi();
+
+    // Yıkıcı Metot (Destructor): Bellekte 'new' ile açılan alanları temizleyerek sızıntıları önler
+    // Hata buradaydı, bu satırın mutlaka burada olması gerekiyor!
     ~HavayoluSistemi();
 
-    // Temel yükleme ve işlem fonksiyonları
-    void seferleriYukle();
-    void bagajlariYukle();
-    void bagajlariTahliyeEt(string seferNo);
+    // Veri Yükleme İşlemleri
+    void seferleriYukle();   // 'seferler.txt' dosyasını satır satır parçalar
+    void bagajlariYukle();   // 'bagajlar.txt' dosyasını okuyup ilgili sefere Stack olarak ekler
+    void bagajlariTahliyeEt(string seferNo); // Stack yapısını kullanarak LIFO mantığıyla bagaj boşaltır
 
-    // Bellek temizliği için yardımcılar
-    void agaciTemizle(YolcuNode* kok);
-    void seferListesiniTemizle(PnrNode*& bas);
-}; // <--- BU NOKTALI VİRGÜLÜ SAKIN SİLME, HATALARIN KAYNAĞI BU OLABİLİR!
+    // Bellek Yönetimi Yardımcıları (Rekürsif ve Pointer işlemleri)
+    void agaciTemizle(YolcuNode* kok);        // BST'yi Post-Order mantığıyla tamamen siler
+    void seferListesiniTemizle(PnrNode*& bas); // Bağlı listeleri düğüm düğüm gezerek yok eder
+};
 
-#endif
+#endif // HAVAYOLUSISTEMI_H
