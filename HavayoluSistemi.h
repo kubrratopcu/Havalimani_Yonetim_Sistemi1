@@ -1,13 +1,29 @@
-//
-// Created by ASUS on 9.05.2026.
-//
+#pragma once
 
-#ifndef HAVALIMANI_YONETIM_SISTEMI1_HAVAYOLUSISTEMI_H
-#define HAVALIMANI_YONETIM_SISTEMI1_HAVAYOLUSISTEMI_H
+#include <iostream>
+#include <map>
+#include <queue>
+#include <vector>
+#include <set>
+#include <unordered_map>
+#include <stack>
+#include <string>
+#include "Modeller.h"
 
+using namespace std;
 
 class HavayoluSistemi {
+private:
+    map<string, Sefer> seferSistemi;
+    priority_queue<Ucak> kule;
+    map<string, vector<pair<string, int>>> graf;
+    unordered_map<string, Yolcu> harita;
+    YolcuNode* yolcuAgaciKoku;
+
+public:
+    HavayoluSistemi();
+    ~HavayoluSistemi();
+
+    void agaciTemizle(YolcuNode* kok);
+    void seferListesiniTemizle(PnrNode*& bas);
 };
-
-
-#endif //HAVALIMANI_YONETIM_SISTEMI1_HAVAYOLUSISTEMI_H

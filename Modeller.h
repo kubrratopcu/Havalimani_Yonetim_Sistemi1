@@ -29,6 +29,12 @@ struct Yolcu {
     string pnr;
     string koltukNo;
 };
+// İkili Arama Ağacı (BST) Düğüm Yapısı(bellek temızlıgı ıcın)
+struct YolcuNode {
+    Yolcu veri;
+    YolcuNode *sol;
+    YolcuNode *sag;
+};
 // 3. BAGAJ YAPISI (Stack İçin)
 struct Bagaj {
     int id;

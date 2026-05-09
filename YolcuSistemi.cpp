@@ -9,12 +9,6 @@ using namespace std;
 // --- LINKED LIST (BAĞLI LİSTE) DÜĞÜM YAPISI ---
 
 
-// ikili arama ağacı (BST) için temel düğüm yapısı oluşturulması
-struct YolcuNode {
-    Yolcu veri;             // Yolcu bilgilerini tutan struct
-    struct YolcuNode *sol;  // Sol kol (Pointer)
-    struct YolcuNode *sag;  // Sağ kol (Pointer)
-};
 // Burada Yolcu struct yapısı tüm yolcuya ait değişkenler için geçerlidir. Tüm değişkenleri alır.
 
 // --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
