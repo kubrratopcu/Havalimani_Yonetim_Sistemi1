@@ -8,6 +8,7 @@
 #include "Modeller.h"
 
 using namespace std;
+// KuleYonetimi.cpp içindeki fonksiyonun en başına şu satırları ekle:
 
 // =====================================================
 // UÇAKLARI DOSYADAN OKUYUP PRIORITY QUEUE'YA YÜKLER
@@ -105,93 +106,65 @@ void rotalariYukle(map<string, vector<pair<string, int>>>& graf) {
 // =====================================================
 // DIJKSTRA ALGORİTMASI İLE EN KISA YOL HESAPLAMA
 // =====================================================
-void enKisaYoluBul(map<string, vector<pair<string, int>>>& graf,
-                   string baslangic,
-                   string hedef) {
+void enKisaYoluBul(map<string, vector<pair<string, int>>>& graf, string baslangic, string hedef) {
+    // 1. Girdi Temizliği (Harf Büyütme)
+    if (!baslangic.empty()) baslangic[0] = toupper(baslangic[0]);
+    if (!hedef.empty()) hedef[0] = toupper(hedef[0]);
 
-    // ---------------------------------------------
-    // 1. MESAFE HARİTASI OLUŞTUR
-    // ---------------------------------------------
-    map<string, int> mesafeler;
-
-    // Tüm şehirler için başlangıçta mesafeyi sonsuz yap
-    // (1e9 = ulaşılmamış gibi düşünülür)
-    for (auto const& [sehir, _] : graf)
-        mesafeler[sehir] = 1e9;
-
-    // Eğer başlangıç şehir graf'ta yoksa hata ver
-    if (!graf.count(baslangic)) {
-        cout << "[!] Baslangic noktasi graf'ta yok!" << endl;
+    // 2. Graf Kontrolü
+    if (graf.find(baslangic) == graf.end()) {
+        cout << "[!] Hata: '" << baslangic << "' sehri rota listesinde yok!" << endl;
         return;
     }
 
-    // Başlangıç noktası sıfır
+    // 3. Mesafe ve Kuyruk Tanımlamaları (Sadece BİR kez yapılmalı)
+    map<string, int> mesafeler;
+    // --- KuleYonetimi.cpp içindeki enKisaYoluBul fonksiyonu ---
+
+    // 1. Önce tüm şehirleri (kalkış ve varış fark etmeksizin) sonsuz yap
+    for (auto const& [kalkis, komsular] : graf) {
+        mesafeler[kalkis] = 1e9;
+        for (auto& komsu : komsular) {
+            mesafeler[komsu.first] = 1e9; // Hedef şehirleri de sonsuz yap!
+        }
+    }
+
+    // 2. Eğer hedef şehir hala haritada yoksa, o şehir gerçekten uçuş ağında yoktur
+    if (mesafeler.find(hedef) == mesafeler.end()) {
+        cout << "[!] Hata: '" << hedef << "' sehri ucus aginda bulunmuyor!" << endl;
+        return;
+    }
+
+    mesafeler[baslangic] = 0; // Başlangıç noktası sıfır [cite: 344]
     mesafeler[baslangic] = 0;
-
-    // ---------------------------------------------
-    // 2. ÖNCELİKLİ KUYRUK (SET)
-    // ---------------------------------------------
-    // pair<mesafe, şehir>
     set<pair<int, string>> kuyruk;
-
-    // Başlangıç düğümünü ekle
     kuyruk.insert({0, baslangic});
 
-    // ---------------------------------------------
-    // 3. ANA DIJKSTRA DÖNGÜSÜ
-    // ---------------------------------------------
+    // 4. Ana Dijkstra Döngüsü
     while (!kuyruk.empty()) {
-
-        // En küçük mesafeli elemanı al
         auto it = kuyruk.begin();
-
         int mevcutMesafe = it->first;
         string u = it->second;
-
-        // Kuyruktan çıkar (işlendi)
         kuyruk.erase(it);
 
-        // Eğer hedefe ulaştıysak çık (optimizasyon)
-        if (u == hedef)
-            break;
+        if (u == hedef) break;
 
-        // -----------------------------------------
-        // KOMŞULARI DOLAŞ
-        // -----------------------------------------
         for (auto& komsu : graf[u]) {
+            string v = komsu.first;
+            int agirlik = komsu.second;
 
-            string v = komsu.first;   // komşu şehir
-            int agirlik = komsu.second; // yol mesafesi
-
-            // -------------------------------------
-            // RELAXATION (en kritik adım)
-            // -------------------------------------
-            // Eğer u üzerinden gitmek daha kısa ise
             if (mevcutMesafe + agirlik < mesafeler[v]) {
-
-                // Eski değeri kuyruktan sil
                 kuyruk.erase({mesafeler[v], v});
-
-                // Yeni daha kısa mesafeyi ata
                 mesafeler[v] = mevcutMesafe + agirlik;
-
-                // Güncellenmiş değeri kuyruğa ekle
                 kuyruk.insert({mesafeler[v], v});
             }
         }
     }
 
-    // ---------------------------------------------
-    // 4. SONUÇ
-    // ---------------------------------------------
+    // 5. Sonuç Yazdırma
     if (mesafeler[hedef] == 1e9) {
-        cout << "[!] Yol bulunamadi!" << endl;
+        cout << "[!] '" << hedef << "' sehrine yol bulunamadi!" << endl;
     } else {
-        cout << "[#] " << baslangic << " -> " << hedef
-             << " en kisa mesafe: "
-             << mesafeler[hedef] << " km" << endl;
+        cout << "[#] " << baslangic << " -> " << hedef << " en kisa mesafe: " << mesafeler[hedef] << " km" << endl;
     }
-}
-// NOT:
-// Dijkstra algoritması negatif ağırlıklı kenarlarda doğru sonuç vermez.
-// Bu sistem yalnızca pozitif mesafeler için uygundur.
+} // Fonksiyon burada biter

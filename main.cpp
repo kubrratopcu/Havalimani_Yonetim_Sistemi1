@@ -6,6 +6,7 @@
 #include "Modeller.h"
 
 using namespace std;
+void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcuHaritasi);
 
 // --- FONKSİYON BİLDİRİMLERİ (KuleYonetimi.cpp ve diğerlerinden gelecek) ---
 void ucaklariYukle(priority_queue<Ucak>& kule);
@@ -46,14 +47,20 @@ int main() {
         cin >> secim;
 
         switch (secim) {
-            case 1:
+            case 1: { // Tüm bekleyen uçakları göster
                 if (!kuleKuyrugu.empty()) {
-                    Ucak enAcil = kuleKuyrugu.top();
-                    cout << "\n[!] INIS SIRASI BASINDAKI UCAK:" << endl;
-                    cout << "ID: " << enAcil.id << " | Sirket: " << enAcil.havayolu
-                         << " | Yakit: " << enAcil.yakit << endl;
+                    priority_queue<Ucak> gecici = kuleKuyrugu;
+                    cout << "\n--- INIS SIRASI (Oncelik Sirali) ---" << endl;
+                    while (!gecici.empty()) {
+                        Ucak u = gecici.top();
+                        cout << "ID: " << u.id << " | Sirket: " << u.havayolu
+                             << " | Yakit: " << u.yakit
+                             << " | Acil: " << (u.acilDurum ? "EVET" : "HAYIR") << endl;
+                        gecici.pop();
+                    }
                 } else cout << "Kuyruk bos!" << endl;
                 break;
+            }
 
             case 2:
                 cout << "\n[A-Z] YOLCU LISTESI:" << endl;
@@ -68,12 +75,14 @@ int main() {
                 break;
             }
 
-            case 4:
-                cout << "\n[LIFO] BAGAJ TAHLIYE SIMULASYONU:" << endl;
-                // Burada Adem'in Stack yapısını ekrana basacağız
-                cout << "Bagajlar ucak ambarindan son girenden ilk girene dogru cikariliyor..." << endl;
+            case 4: { // Bagaj tahliyesini başlat
+                string sNo;
+                cout << "Sefer No girin (Orn: TK1920): "; cin >> sNo;
+                if (seferler.count(sNo)) {
+                    bagajlariTahliyeEt(seferler[sNo], yolcuHaritasi);
+                } else cout << "[!] Sefer bulunamadi!" << endl;
                 break;
-
+            }
             case 0:
                 cout << "Sistem kapatiliyor..." << endl;
                 break;

@@ -1,9 +1,11 @@
-#include <iostream>   // cout, endl
-#include <fstream>    // dosya okuma (ifstream)
-#include <sstream>    // stringstream (satır parçalama)
-#include <map>        // map veri yapısı
-#include "Modeller.h" // Sefer ve Bagaj struct/class'ları
-
+#include <iostream>
+#include <fstream>    // Dosya okuma için (ifstream) [cite: 144]
+#include <sstream>    // Parçalama için (stringstream) [cite: 145]
+#include <map>        // MAP hatasını çözen satır bu!
+#include <unordered_map> // BAGAJ TAHLİYE hatasını çözen satır bu!
+#include <string>
+#include <vector>     // Vektör kullanımı için [cite: 253]
+#include "Modeller.h"
 using namespace std;
 
 // =============================================
@@ -116,7 +118,8 @@ void bagajlariYukle(map<string, Sefer>& seferSistemi) {
     // Bilgi mesajı
     cout << "[-] Kargo Sistemi: Bagajlar ucaklarin yiginina (Stack) yuklendi." << endl;
 }
-void bagajlariTahliyeEt(Sefer& secilenSefer) {
+// KargoSistemi.cpp içindeki fonksiyonu bu şekilde değiştir:
+void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcuHaritasi) {
     cout << "\n[LIFO] " << secilenSefer.seferNo << " seferi bagajlari bosaltiliyor..." << endl;
 
     if (secilenSefer.kargoBolumu.empty()) {
@@ -126,12 +129,19 @@ void bagajlariTahliyeEt(Sefer& secilenSefer) {
 
     int sira = 1;
     while (!secilenSefer.kargoBolumu.empty()) {
-        Bagaj b = secilenSefer.kargoBolumu.top(); // En üstteki bagajı al
-        cout << sira << ". Tahliye Edilen Bagaj -> ID: " << b.id
-             << " | Sahibi (PNR): " << b.pnr_sahibi << endl;
+        Bagaj b = secilenSefer.kargoBolumu.top();
 
-        secilenSefer.kargoBolumu.pop(); // Yığından çıkar
+        string sahibi = "Bilinmiyor";
+        // Map içinde PNR'ı arıyoruz
+        if (yolcuHaritasi.count(b.pnr_sahibi)) {
+            sahibi = yolcuHaritasi[b.pnr_sahibi].ad + " " + yolcuHaritasi[b.pnr_sahibi].soyad;
+        }
+
+        cout << sira << ". Tahliye Edilen Bagaj -> ID: " << b.id
+             << " | Sahibi: " << sahibi << " (" << b.pnr_sahibi << ")" << endl;
+
+        secilenSefer.kargoBolumu.pop();
         sira++;
     }
-    cout << "[✔] Tum bagajlar teslim noktasına gonderildi." << endl;
+    cout << "[✔] Tum bagajlar teslim noktasina gonderildi." << endl;
 }

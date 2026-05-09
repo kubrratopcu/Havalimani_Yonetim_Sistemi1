@@ -6,40 +6,47 @@
 
 using namespace std;
 
-// 1. UÇAK YAPISI
-// 1. UÇAK YAPISI
+struct Bagaj {
+    int id;
+    string pnr_sahibi;
+    float agirlik;
+};
+
 struct Ucak {
     int id;
     string havayolu;
     int yakit;
     long long varisZamani;
-    bool acilDurum; // --- YENİ EKLENEN DEĞİŞKEN ---
+    bool acilDurum;
 
-    // Priority Queue (Öncelikli Kuyruk) için karşılaştırma operatörü
+    // Priority Queue için sıralama mantığı
     bool operator<(const Ucak& diger) const {
-
-        // 1. KURAL: Acil durum varsa her şeyi boşver, o uçağı en öne al!
-        if (this->acilDurum != diger.acilDurum) {
-            return diger.acilDurum; // Eğer 'diger' uçak acil durumdaysa o üste çıkar.
+        if (acilDurum != diger.acilDurum) {
+            return !acilDurum; // Acil durumu olan (1) önceliklidir (daha büyüktür)
         }
-
-        // 2. KURAL: İkisinin de durumu aynıysa (ikisi de normal veya acilse), yakıtı AZ olana öncelik ver
-        if (this->yakit != diger.yakit) {
-            return this->yakit > diger.yakit;
-        }
-
-        // 3. KURAL: Yakıtlar da eşitse, varış zamanı erken olanı öne al
-        return this->varisZamani > diger.varisZamani;
+        return yakit > diger.yakit; // Yakıtı AZ olan önceliklidir
     }
 };
 
 // 2. YOLCU YAPISI
+struct Sefer {
+    string seferNo;
+    int ucakId;
+    long long ucusZamani;
+    vector<string> yolcuPnrListesi;
+    stack<Bagaj> kargoBolumu;
+    bool koltukDurumu[20][6] = {false};
+    struct PnrNode* yolcuListesiBasi = nullptr;
+};
+
 struct Yolcu {
     string ad;
     string soyad;
     string pnr;
     string koltukNo;
 };
+
+
 // İkili Arama Ağacı (BST) Düğüm Yapısı(bellek temızlıgı ıcın)
 struct YolcuNode {
     Yolcu veri;
@@ -47,11 +54,7 @@ struct YolcuNode {
     YolcuNode *sag;
 };
 // 3. BAGAJ YAPISI (Stack İçin)
-struct Bagaj {
-    int id;
-    string pnr_sahibi;
-    float agirlik; // --- İŞTE BU SATIRI EKLEDİK ---
-};
+
 
 
 
@@ -62,14 +65,3 @@ struct PnrNode {
 };
 
 // 5. SEFER YAPISI
-struct Sefer {
-    string seferNo;
-    int ucakId;
-    long long ucusZamani;
-    bool koltukDurumu[20][6] = {false};
-    vector<string> yolcuPnrListesi;
-    stack<Bagaj> kargoBolumu;
-
-    // Linked List Başlangıç Noktası
-    PnrNode* yolcuListesiBasi = nullptr;
-};
