@@ -13,7 +13,6 @@ using namespace std;
 
 // --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
 // Seferin içindeki PNR listesine yeni bir düğüm ekler (Linked List Mantığı)
-// --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
 void seferListesineEkle(PnrNode*& bas, string pnr) {
     PnrNode* yeni = new PnrNode();
     yeni->pnr = pnr;
