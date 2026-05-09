@@ -5,7 +5,17 @@
 #include <vector>
 #include "Modeller.h"
 
-using namespace std;
+
+#include "mainwindow.h"
+#include <QApplication>
+
+int main(int argc, char *argv[]) {
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+}
+/*using namespace std;
 void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcuHaritasi);
 
 // --- FONKSİYON BİLDİRİMLERİ (KuleYonetimi.cpp ve diğerlerinden gelecek) ---
@@ -93,4 +103,5 @@ int main() {
     } while (secim != 0);
 
     return 0;
-}
+    }
+*/

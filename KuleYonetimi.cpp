@@ -62,6 +62,8 @@ void ucaklariYukle(priority_queue<Ucak>& kule) {
 }
 
 
+
+
 // =====================================================
 // ROTALARI GRAF YAPISINA (KOMŞULUK LİSTESİ) YÜKLER
 // =====================================================

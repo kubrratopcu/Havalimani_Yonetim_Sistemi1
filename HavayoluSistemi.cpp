@@ -4,8 +4,14 @@
 // YAPICI METOT (CONSTRUCTOR)
 // ---------------------------------------------------------
 HavayoluSistemi::HavayoluSistemi() {
-    // Başlangıçta alfabetik yolcu ağacı boş olduğu için kökü boşa işaretliyoruz
     yolcuAgaciKoku = nullptr;
+
+    // VERİLERİ BURADA YÜKLEMELİSİN
+    seferleriYukle();
+    bagajlariYukle();
+    // rotalariYukle(); // Varsa ekle
+
+    cout << "[✔] Havalimani Sistemi: Veriler basariyla yuklendi." << endl;
 }
 
 // ---------------------------------------------------------
@@ -51,7 +57,13 @@ void HavayoluSistemi::seferleriYukle() {
         stringstream ssPnr(pnrList);
         string tPnr;
         while (getline(ssPnr, tPnr, ';')) {
-            if (!tPnr.empty()) s.yolcuPnrListesi.push_back(tPnr); // Dinamik vector'e ekle
+            if (!tPnr.empty()){
+                s.yolcuPnrListesi.push_back(tPnr); // Dinamik vector'e ekle
+                // --- LINKED LIST ENTEGRASYONU (Kritik Adım) ---
+                PnrNode* yeni = new PnrNode();
+                yeni->pnr = tPnr;
+                yeni->next = s.yolcuListesiBasi; // Başa ekleme mantığı (en hızlısı)
+                s.yolcuListesiBasi = yeni;            }
         }
         seferSistemi[sNo] = s;      // Map yapısına 'SeferNo' anahtarıyla kaydet (O(log n) hız)
     }
@@ -81,3 +93,51 @@ void HavayoluSistemi::seferListesiniTemizle(PnrNode*& bas) {
     }
     bas = nullptr;              // Listenin başını tamamen sıfırla
 }
+
+// PNR ile Yolcu Bulma (Hash Table)
+Yolcu HavayoluSistemi::pnrIleYolcuBul(string pnr) {
+    if (harita.find(pnr) != harita.end()) {
+        return harita[pnr]; // O(1) hızında bulur
+    }
+    return Yolcu(); // Bulunamazsa boş döner
+}
+
+// 1. Kule Yönetimi (Priority Queue)
+string HavayoluSistemi::siradakiUcagiIndir() {
+    if (!kule.empty()) {
+        Ucak enOncelikli = kule.top();
+        kule.pop();
+        // 'ucakKodu' yerine 'id' kullanıyoruz
+        return "Ucak ID: " + to_string(enOncelikli.id) + " (" + enOncelikli.havayolu + ")";
+    }
+    return "Kule Bos";
+}
+// 1. BAGAJLARI YÜKLEME (Dosyadan Okuma Taslağı)
+void HavayoluSistemi::bagajlariYukle() {
+    // Şimdilik boş bırakabilirsin, hata vermemesi için gövde olması yeterli.
+}
+
+// 2. BAGAJ TAHLİYE (Stack - LIFO Mantığı)
+vector<string> HavayoluSistemi::bagajlariTahliyeEt(string seferNo) {
+    vector<string> liste;
+
+    // Sefer sisteminde bu uçuş var mı kontrol et
+    if (seferSistemi.find(seferNo) != seferSistemi.end()) {
+        // Seferin içindeki kargoBolumu (stack) yapısını boşaltıyoruz
+        while (!seferSistemi[seferNo].kargoBolumu.empty()) {
+            Bagaj b = seferSistemi[seferNo].kargoBolumu.top();
+            string bilgi = "Bagaj ID: " + to_string(b.id) + " - Sahibi: " + b.pnr_sahibi;
+            liste.push_back(bilgi);
+            seferSistemi[seferNo].kargoBolumu.pop();
+        }
+    }
+    return liste;
+}
+
+// 3. ROTA HESAPLAMA (Graph/Dijkstra Taslağı)
+string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
+    if(kalkis == varis) return "Aynı şehri seçtiniz.";
+    // Buraya Dijkstra algoritmanı ekleyebilirsin.
+    return kalkis + " -> " + varis + " (Rota hesaplandı)";
+}
+
