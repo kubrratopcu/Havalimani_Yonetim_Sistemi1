@@ -9,4 +9,6 @@ add_executable(Havalimani_Yonetim_Sistemi1
         KuleYonetimi.cpp
         YolcuSistemi.cpp
         KargoSistemi.cpp
+        HavayoluSistemi.cpp
+        HavayoluSistemi.h
 )
