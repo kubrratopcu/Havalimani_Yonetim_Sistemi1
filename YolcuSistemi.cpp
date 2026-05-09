@@ -19,33 +19,31 @@ struct YolcuNode {
 
 // --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
 // Seferin içindeki PNR listesine yeni bir düğüm ekler (Linked List Mantığı)
+// --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
 void seferListesineEkle(PnrNode*& bas, string pnr) {
-    // Malloc ile bellekte yeni bir PNR düğümü oluştur
-    PnrNode* yeni = (PnrNode*)malloc(sizeof(PnrNode));
+    PnrNode* yeni = new PnrNode();
     yeni->pnr = pnr;
-    yeni->next = NULL;
+    yeni->next = nullptr;
 
-    // Eğer liste boşsa, ilk düğüm bu olur
-    if (bas == NULL) {
+    if (bas == nullptr) {
         bas = yeni;
     } else {
-        // Listenin sonuna kadar yürü (Traversal)
         PnrNode* gecici = bas;
-        while (gecici->next != NULL) {
+        while (gecici->next != nullptr) {
             gecici = gecici->next;
         }
-        // Son düğümün 'next'ini yeni düğüme bağla
         gecici->next = yeni;
     }
 }
 
 // malloc ve NULL mantığıyla yeni düğüm oluşturma fonksiyonu
+// C++ mantığıyla güvenli düğüm oluşturma fonksiyonu
 struct YolcuNode* yeniDugumOlustur(Yolcu y) {
-    struct YolcuNode* yeni = (struct YolcuNode*)malloc(sizeof(struct YolcuNode));
+    struct YolcuNode* yeni = new YolcuNode();
 
     yeni->veri = y;         // Veriyi düğümün içine kopyala
-    yeni->sol = NULL;       // Sol kolu boşalt
-    yeni->sag = NULL;       // Sağ kolu boşalt
+    yeni->sol = nullptr;    // Sol kolu boşalt (nullptr ile)
+    yeni->sag = nullptr;    // Sağ kolu boşalt (nullptr ile)
     return yeni;            // Hazırlanan düğümün adresini döndür
 }
 
@@ -152,19 +150,20 @@ void yeniYolcuEkle(unordered_map<string, Yolcu>& harita, YolcuNode*& kok, Sefer&
     }
 }
 // Belleği serbest bırakma (Memory Deallocation)
+// Belleği serbest bırakma (Memory Deallocation)
 void agaciTemizle(YolcuNode* kok) {
-    if (kok == NULL) return;
+    if (kok == nullptr) return;
     agaciTemizle(kok->sol);
     agaciTemizle(kok->sag);
-    free(kok); // C mantığıyla temizle
+    delete kok; // free YERİNE delete kullanıldı
 }
 
 void seferListesiniTemizle(PnrNode*& bas) {
     PnrNode* akim = bas;
-    while (akim != NULL) {
+    while (akim != nullptr) {
         PnrNode* sonraki = akim->next;
-        free(akim);
+        delete akim; // free YERİNE delete kullanıldı
         akim = sonraki;
     }
-    bas = NULL;
+    bas = nullptr; // Başlangıç işaretçisini sıfırla
 }
