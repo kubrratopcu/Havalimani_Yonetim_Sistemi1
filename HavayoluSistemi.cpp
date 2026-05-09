@@ -1,54 +1,113 @@
 #include "HavayoluSistemi.h"
 
-// ==========================================
-// CONSTRUCTOR (YAPICI METOT)
-// ==========================================
-// Arayüz ayağa kalktığında veya sistem nesnesi oluşturulduğunda ilk burası çalışır.
 HavayoluSistemi::HavayoluSistemi() {
-    // Başlangıçta yolcu ağacımız boş olduğu için kök düğümünü nullptr yapıyoruz.
-    // İleride txt dosyalarından veri okuma fonksiyonlarını da buraya ekleyeceğiz.
     yolcuAgaciKoku = nullptr;
 }
 
-// ==========================================
-// DESTRUCTOR (YIKICI METOT)
-// ==========================================
-// Program kapandığında arka planda otomatik olarak tetiklenir.
-// C++'ta "new" ile oluşturulan her şey "delete" ile silinmezse RAM'de asılı kalır (Memory Leak).
 HavayoluSistemi::~HavayoluSistemi() {
-    // 1. Ağaçtaki tüm yolcu düğümlerini RAM'den siler
     agaciTemizle(yolcuAgaciKoku);
-
-    // 2. Map içindeki tüm seferleri tek tek gezer (auto& referans ile)
     for (auto& cift : seferSistemi) {
-        // Her bir seferin içindeki PNR bağlı listesini (Linked List) temizler
         seferListesiniTemizle(cift.second.yolcuListesiBasi);
     }
 }
 
-// ==========================================
-// BELLEK TEMİZLEME ALGORİTMALARI
-// ==========================================
+void HavayoluSistemi::seferleriYukle() {
+    ifstream dosya("seferler.txt");
+    string satir;
+    if (!dosya.is_open()) return;
 
-// İkili arama ağacını (BST) Post-Order (Sol-Sağ-Kök) mantığıyla gezip yok eder.
-// Rekürsif (kendi kendini çağıran) bir fonksiyondur.
-void HavayoluSistemi::agaciTemizle(YolcuNode* kok) {
-    if (kok == nullptr) return; // Dalın sonuna geldiysek geri dön
+    while (getline(dosya, satir)) {
+        stringstream ss(satir);
+        // DEĞİŞKENLERİ BURADA TANIMLIYORUZ (Hata almamak için şart!)
+        string sNo, uId, kalkis, varis, zaman, pnrList;
 
-    agaciTemizle(kok->sol);     // Önce sol dalı temizle
-    agaciTemizle(kok->sag);     // Sonra sağ dalı temizle
-    delete kok;                 // En son düğümün kendisini bellekten sil
+        getline(ss, sNo, ',');
+        getline(ss, uId, ',');
+        getline(ss, kalkis, ',');
+        getline(ss, varis, ',');
+        getline(ss, zaman, ',');
+        getline(ss, pnrList, ',');
+
+        Sefer s;
+        s.seferNo = sNo;
+        s.ucakId = stoi(uId);
+        s.ucusZamani = stoll(zaman);
+
+        stringstream ssPnr(pnrList);
+        string tPnr;
+        while (getline(ssPnr, tPnr, ';')) {
+            if (!tPnr.empty()) s.yolcuPnrListesi.push_back(tPnr);
+        }
+        seferSistemi[sNo] = s;
+    }
+    dosya.close();
+    cout << "[-] Seferler yuklendi." << endl;
 }
 
-// Bir sefere ait yolcuların PNR numaralarını tutan Bağlı Listeyi (Linked List) temizler.
-void HavayoluSistemi::seferListesiniTemizle(PnrNode*& bas) {
-    PnrNode* akim = bas; // Listede gezinmek için geçici işaretçi (pointer)
+void HavayoluSistemi::bagajlariYukle() {
+    ifstream dosya("bagajlar.txt");
+    string satir;
+    if (!dosya.is_open()) return;
 
-    // Liste sonuna (nullptr) gelene kadar döngüyü çalıştır
-    while (akim != nullptr) {
-        PnrNode* sonraki = akim->next; // Bir sonraki düğümü kaybetmemek için yedekte tut
-        delete akim;                   // Mevcut düğümü RAM'den sil
-        akim = sonraki;                // Bir sonraki düğüme geç
+    while (getline(dosya, satir)) {
+        stringstream ss(satir);
+        string bId, pnr, agirlik; // Tanımlamalar yapıldı
+
+        getline(ss, bId, ',');
+        getline(ss, pnr, ',');
+        getline(ss, agirlik, ',');
+
+        if(bId.empty() || pnr.empty()) continue;
+
+        Bagaj b = { stoi(bId), pnr, stof(agirlik) };
+
+        for (auto& cift : seferSistemi) {
+            for (string& yPnr : cift.second.yolcuPnrListesi) {
+                if (yPnr == pnr) {
+                    cift.second.kargoBolumu.push(b);
+                }
+            }
+        }
     }
-    bas = nullptr; // Listenin başını güvenliğe almak için sıfırla
+    dosya.close();
+    cout << "[-] Bagajlar Stack yapisina eklendi." << endl;
+}
+
+void HavayoluSistemi::bagajlariTahliyeEt(string seferNo) {
+    if (seferSistemi.find(seferNo) == seferSistemi.end()) {
+        cout << "Sefer bulunamadi!" << endl;
+        return;
+    }
+
+    Sefer& secilenSefer = seferSistemi[seferNo];
+    int sira = 1;
+    while (!secilenSefer.kargoBolumu.empty()) {
+        Bagaj b = secilenSefer.kargoBolumu.top();
+
+        string isim = "Bilinmiyor";
+        if (harita.count(b.pnr_sahibi)) {
+            isim = harita[b.pnr_sahibi].ad + " " + harita[b.pnr_sahibi].soyad;
+        }
+
+        cout << sira << ". Bagaj Sahibi: " << isim << " (" << b.pnr_sahibi << ")" << endl;
+        secilenSefer.kargoBolumu.pop();
+        sira++;
+    }
+}
+
+void HavayoluSistemi::agaciTemizle(YolcuNode* kok) {
+    if (kok == nullptr) return;
+    agaciTemizle(kok->sol);
+    agaciTemizle(kok->sag);
+    delete kok;
+}
+
+void HavayoluSistemi::seferListesiniTemizle(PnrNode*& bas) {
+    PnrNode* akim = bas;
+    while (akim != nullptr) {
+        PnrNode* sonraki = akim->next;
+        delete akim;
+        akim = sonraki;
+    }
+    bas = nullptr;
 }
