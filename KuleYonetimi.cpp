@@ -31,28 +31,26 @@ void ucaklariYukle(priority_queue<Ucak>& kule) {
         stringstream ss(satir);
 
         // CSV alanları
-        string id, havayolu, yakit, zaman;
+        // CSV alanları
+        string id, havayolu, yakit, zaman, acilStr;
 
         // Virgüle göre ayır
         getline(ss, id, ',');        // uçak ID
         getline(ss, havayolu, ',');  // havayolu adı
         getline(ss, yakit, ',');     // yakıt miktarı
         getline(ss, zaman, ',');     // varış zamanı
+        getline(ss, acilStr, ',');   // acil durum (0 veya 1) --- YENİ EKLENDİ
 
-        // Eğer veri eksikse bu satırı atla
-        if (id.empty() || yakit.empty() || zaman.empty())
-            continue;
+        if (id.empty() || yakit.empty() || zaman.empty()) continue;
 
-        // Ucak nesnesi oluştur
         Ucak u;
-        u.id = stoi(id);             // string → int
+        u.id = stoi(id);
         u.havayolu = havayolu;
         u.yakit = stoi(yakit);
-        u.varisZamani = stoll(zaman); // string → long long
+        u.varisZamani = stoll(zaman);
+        u.acilDurum = (acilStr == "1"); // Eğer okunan değer "1" ise true olur --- YENİ EKLENDİ
 
-        // Priority Queue'ya ekle
-        // NOT: Bu yapı otomatik olarak önceliğe göre sıralar (heap)
-        kule.push(u);
+        kule.push(u); // Kuyruğa ekle
     }
 
 
