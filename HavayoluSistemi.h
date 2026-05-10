@@ -35,6 +35,7 @@ public:
     void seferleriYukle();
     void bagajlariYukle();
     void rotalariYukle();
+    KuleYonetimi& getKule() { return kuleYonetimi; }
 
     // --- ALGORİTMALAR VE İŞLEMLER ---
     std::string siradakiUcagiIndir();

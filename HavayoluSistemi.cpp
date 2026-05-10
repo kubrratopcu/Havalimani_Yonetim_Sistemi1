@@ -2,7 +2,14 @@
 #include <set>
 #include <cctype>
 
+void ucaklariYukle(std::priority_queue<Ucak>& kule);
 HavayoluSistemi::HavayoluSistemi() {
+    yolcuAgaciKoku = nullptr;
+
+    // DİKKAT: Bu fonksiyonun burada olduğundan emin ol!
+    // ucaklariYukle fonksiyonunu senin kule kuyruğunu dolduracak şekilde çağırıyoruz.
+    ucaklariYukle(kuleYonetimi.getKuyruk());
+
     yolcuAgaciKoku = nullptr;
     yolculariYukle();
     seferleriYukle();

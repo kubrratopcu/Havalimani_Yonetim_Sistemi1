@@ -19,7 +19,6 @@ add_executable(Havalimani_Yonetim_Sistemi1
 
         KargoSistemi.cpp
         KuleYonetimi.cpp
-        KuleYonetimi.h
         YolcuSistemi.cpp
 
         mainwindow.ui

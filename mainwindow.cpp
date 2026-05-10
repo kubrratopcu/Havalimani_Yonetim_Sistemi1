@@ -55,8 +55,33 @@ void MainWindow::on_kalkisCombo_currentTextChanged(const QString &arg1)
 
 void MainWindow::on_btnKuleGit_clicked() {
     ui->stackedWidget->setCurrentIndex(2);
-}
 
+    ui->tableWidget_2->setRowCount(0);
+    ui->tableWidget_2->setColumnCount(4);
+    ui->tableWidget_2->setHorizontalHeaderLabels({"Uçuş No", "Yakıt", "Havayolu", "Öncelik"});
+
+    // Kule kopyasını alıyoruz (Hata alırsan HavayoluSistemi.h'a getKule eklemeyi unutma!)
+    KuleYonetimi geciciKule = sistem.getKule();
+
+    int satir = 0;
+    while (!geciciKule.bosMu()) {
+        Ucak u = geciciKule.enOncelikliyiGetir();
+        geciciKule.pop();
+
+        ui->tableWidget_2->insertRow(satir);
+
+        // DÜZELTİLEN SATIR BURASI:
+        ui->tableWidget_2->setItem(satir, 0, new QTableWidgetItem(QString::number(u.id)));
+
+        ui->tableWidget_2->setItem(satir, 1, new QTableWidgetItem(QString::number(u.yakit) + "%"));
+        ui->tableWidget_2->setItem(satir, 2, new QTableWidgetItem(QString::fromStdString(u.havayolu)));
+
+        QString oncelikMetni = u.acilDurum ? "ACİL DURUM" : "Normal";
+        ui->tableWidget_2->setItem(satir, 3, new QTableWidgetItem(oncelikMetni));
+
+        satir++;
+    }
+}
 void MainWindow::on_btnYolcularGit_clicked() {
     ui->pnrInput->clear();
     ui->yolcuBilgiLabel->setText("");
