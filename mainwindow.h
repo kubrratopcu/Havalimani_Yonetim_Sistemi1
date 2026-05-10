@@ -32,4 +32,4 @@ private:
     HavayoluSistemi sistem;
 };
 
-#endif // MAINWINDOW_H
+#endif // MAINWINDOW_H-

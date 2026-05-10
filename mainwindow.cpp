@@ -44,7 +44,7 @@ void MainWindow::on_pnrSorgulaBtn_clicked() {
     }
 }
 
-// 2. KULE YÖNETİMİ (Priority Queue)
+// 2. KULE YÖNETİMİ (Priority Queue
 // DİKKAT: Designer'da bu butonun adı "kuleIndirBtn" olmalı!
 void MainWindow::on_kuleIndirBtn_clicked() {
     string ucak = sistem.siradakiUcagiIndir();

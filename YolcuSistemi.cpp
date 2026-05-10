@@ -11,7 +11,7 @@ using namespace std;
 
 // Burada Yolcu struct yapısı tüm yolcuya ait değişkenler için geçerlidir. Tüm değişkenleri alır.
 
-// --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU ---
+// --- LINKED LIST (BAĞLI LİSTE) EKLEME FONKSİYONU --
 // Seferin içindeki PNR listesine yeni bir düğüm ekler (Linked List Mantığı)
 void seferListesineEkle(PnrNode*& bas, string pnr) {
     PnrNode* yeni = new PnrNode();
