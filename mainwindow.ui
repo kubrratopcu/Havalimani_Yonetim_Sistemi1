@@ -13,230 +13,243 @@
   <property name="windowTitle">
    <string>mainwindow</string>
   </property>
-  <layout class="QFormLayout" name="formLayout_2">
-   <item row="0" column="0">
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="currentIndex">
-      <number>2</number>
+  <widget class="QStackedWidget" name="stackedWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>536</width>
+     <height>338</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>1</number>
+   </property>
+   <widget class="QWidget" name="sayfaAnaMenu">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="btnKuleGit">
+       <property name="text">
+        <string>Uçuş Operasyonları</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnYolcularGit">
+       <property name="text">
+        <string>Yolcu Sorgulama</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnRotaGit">
+       <property name="text">
+        <string>Rota Analizi</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="sayfaUcuslar">
+    <widget class="QTableWidget" name="tableWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>411</width>
+       <height>192</height>
+      </rect>
      </property>
-     <widget class="QWidget" name="sayfaAnaMenu">
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QPushButton" name="btnUcuslarGit">
-         <property name="text">
-          <string>Uçuş Operasyonları</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnYolcularGit">
-         <property name="text">
-          <string>Yolcu Sorgulama</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnRotaGit">
-         <property name="text">
-          <string>Rota Analizi</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="sayfaUcuslar">
-      <layout class="QFormLayout" name="formLayout">
-       <item row="0" column="0">
-        <widget class="QTableWidget" name="tableWidget_2">
-         <column>
-          <property name="text">
-           <string>Uçuş Kodu</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Yeni Sütun</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Hava Yolu</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Öncelik Önemi</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="kuleIndirBtn">
-         <property name="text">
-          <string>Sıradaki uçağa izin ver</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="btnGeriDon2">
-         <property name="text">
-          <string>Ana Menüye Dön</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="sayfaYolcular">
-      <widget class="QLineEdit" name="pnrInput">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>9</y>
-         <width>171</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>PNR GİRİNİZ(Örn: PNR111):</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pnrSorgulaBtn">
-       <property name="geometry">
-        <rect>
-         <x>228</x>
-         <y>9</y>
-         <width>81</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Sorgula</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="yolcuBilgiLabel">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>41</y>
-         <width>401</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QListWidget" name="kargoListe">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>63</y>
-         <width>256</width>
-         <height>192</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="bagajTahliyeBtn">
-       <property name="geometry">
-        <rect>
-         <x>290</x>
-         <y>120</y>
-         <width>84</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>bagaj tahliye</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="btnGeriDon3">
-       <property name="geometry">
-        <rect>
-         <x>410</x>
-         <y>290</y>
-         <width>112</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Ana Menuye Dön </string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="seferNoInput">
-       <property name="geometry">
-        <rect>
-         <x>290</x>
-         <y>80</y>
-         <width>161</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>Sefer No (Örn: TK1920)</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="sayfaRota">
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="4" column="2">
-        <widget class="QPushButton" name="btnGeriDon1">
-         <property name="text">
-          <string>Ana Ekrana Dön</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QTextEdit" name="textEdit_3">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QPlainTextEdit" name="rotaSonucLabel">
-         <property name="plainText">
-          <string>Toplam Mesafe</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QComboBox" name="kalkisCombo"/>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Kalkış Şehri</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Varış Şehri</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="rotaHesaplaBtn">
-         <property name="text">
-          <string>Rota Hesapla</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QComboBox" name="varisCombo"/>
-       </item>
-      </layout>
-     </widget>
+     <column>
+      <property name="text">
+       <string>Uçuş Kodu</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Yeni Sütun</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Hava Yolu</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Öncelik Önemi</string>
+      </property>
+     </column>
     </widget>
-   </item>
-  </layout>
+    <widget class="QPushButton" name="kuleIndirBtn">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>240</y>
+       <width>134</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sıradaki uçağa izin ver</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnGeriDonKule">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>240</y>
+       <width>109</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Ana Menüye Dön</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="sayfaYolcular">
+    <widget class="QLineEdit" name="pnrInput">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>9</y>
+       <width>171</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>PNR GİRİNİZ(Örn: PNR111):</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pnrSorgulaBtn">
+     <property name="geometry">
+      <rect>
+       <x>228</x>
+       <y>9</y>
+       <width>81</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sorgula</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="yolcuBilgiLabel">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>41</y>
+       <width>401</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="kargoListe">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>63</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="bagajTahliyeBtn">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>120</y>
+       <width>84</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>bagaj tahliye</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnGeriDon3">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>290</y>
+       <width>112</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Ana Menuye Dön </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="seferNoInput">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>80</y>
+       <width>161</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Sefer No (Örn: TK1920)</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="sayfaRota">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="4" column="2">
+      <widget class="QPushButton" name="btnGeriDon1">
+       <property name="text">
+        <string>Ana Ekrana Dön</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPlainTextEdit" name="rotaSonucLabel">
+       <property name="plainText">
+        <string>Toplam Mesafe</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QComboBox" name="kalkisCombo"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Kalkış Şehri</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Varış Şehri</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="rotaHesaplaBtn">
+       <property name="text">
+        <string>Rota Hesapla</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="varisCombo"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <resources/>
  <connections/>

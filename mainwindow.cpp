@@ -3,15 +3,23 @@
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
-: QWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    // Program her zaman Ana Menü (0. indeks) ile başlasın
     if (ui->stackedWidget->count() > 0) {
         ui->stackedWidget->setCurrentIndex(0);
     }
+
+    QStringList aktifSehirler = {
+        "Adana", "Ankara", "Antalya", "Bodrum", "Bursa", "Diyarbakir",
+        "Erzurum", "Eskisehir", "Gaziantep", "Istanbul", "Izmir",
+        "Konya", "Mardin", "Mugla", "Samsun", "Sanliurfa", "Trabzon", "Van"
+    };
+    aktifSehirler.sort();
+    ui->kalkisCombo->addItems(aktifSehirler);
+    ui->kalkisCombo->setCurrentIndex(-1);
 }
 
 MainWindow::~MainWindow()
@@ -19,17 +27,56 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// --- NAVİGASYON (SAYFA GEÇİŞLERİ) ---
-void MainWindow::on_btnUcuslarGit_clicked() { ui->stackedWidget->setCurrentIndex(2); }
-void MainWindow::on_btnYolcularGit_clicked() { ui->stackedWidget->setCurrentIndex(3); }
-void MainWindow::on_btnRotaGit_clicked() { ui->stackedWidget->setCurrentIndex(1); }
+void MainWindow::on_kalkisCombo_currentTextChanged(const QString &arg1)
+{
+    if (arg1.isEmpty() || arg1 == "") {
+        ui->varisCombo->clear();
+        return;
+    }
 
-// --- VERİ YAPISI FONKSİYONLARI ---
+    ui->varisCombo->blockSignals(true);
+    ui->varisCombo->clear();
 
-// 1. PNR SORGULAMA (BST Arama)
-// ... (Constructor ve Destructor kısımları aynı kalacak)
+    std::string kalkisStr = arg1.toStdString();
+    auto& komsularMap = sistem.getGraf();
 
-// 1. PNR SORGULAMA (BST Arama)
+    if (komsularMap.count(kalkisStr)) {
+        QStringList varisSehirleri;
+        for (const auto& komsu : komsularMap[kalkisStr]) {
+            varisSehirleri << QString::fromStdString(komsu.first);
+        }
+        varisSehirleri.sort();
+        ui->varisCombo->addItems(varisSehirleri);
+        ui->varisCombo->setCurrentIndex(-1);
+    }
+
+    ui->varisCombo->blockSignals(false);
+}
+
+void MainWindow::on_btnKuleGit_clicked() {
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::on_btnYolcularGit_clicked() {
+    ui->pnrInput->clear();
+    ui->yolcuBilgiLabel->setText("");
+    ui->stackedWidget->setCurrentIndex(3);
+}
+
+void MainWindow::on_btnRotaGit_clicked() {
+    ui->kalkisCombo->blockSignals(true);
+    ui->varisCombo->blockSignals(true);
+
+    ui->kalkisCombo->setCurrentIndex(-1);
+    ui->varisCombo->clear();
+    ui->rotaSonucLabel->clear();
+
+    ui->stackedWidget->setCurrentIndex(1);
+
+    ui->kalkisCombo->blockSignals(false);
+    ui->varisCombo->blockSignals(false);
+}
+
 void MainWindow::on_pnrSorgulaBtn_clicked() {
     QString pnr = ui->pnrInput->text().trimmed();
     if (pnr.isEmpty()) {
@@ -40,92 +87,65 @@ void MainWindow::on_pnrSorgulaBtn_clicked() {
     Yolcu y = sistem.pnrIleYolcuBul(pnr.toStdString());
 
     if (!y.ad.empty()) {
-        // Uçuş bilgisini alıyoruz
         string ekBilgi = sistem.yolcununUcusBilgisiniGetir(pnr.toStdString());
-
-        // GİZLİ DÜŞMANI YOK EDİYORUZ: Koltuk numarasının arkasındaki enter'ı siliyoruz
         QString temizKoltuk = QString::fromStdString(y.koltukNo).trimmed();
-        QString temizEkBilgi = QString::fromStdString(ekBilgi).trimmed();
-
-        // Yazıları birleştiriyoruz
         QString yazi = QString::fromStdString("Yolcu: " + y.ad + " " + y.soyad) +
-                       " | Koltuk: " + temizKoltuk + " " + temizEkBilgi;
-
+                       " | Koltuk: " + temizKoltuk + " " + QString::fromStdString(ekBilgi).trimmed();
         ui->yolcuBilgiLabel->setText(yazi);
     } else {
         ui->yolcuBilgiLabel->setText("Yolcu sistemde bulunamadı.");
     }
 }
 
-// 2. KULE YÖNETİMİ (Priority Queue
-// DİKKAT: Designer'da bu butonun adı "kuleIndirBtn" olmalı!
 void MainWindow::on_kuleIndirBtn_clicked() {
-    string ucak = sistem.siradakiUcagiIndir();
+    std::string ucak = sistem.siradakiUcagiIndir();
+
     if(ucak != "Kuyruk Bos") {
-        // Eğer bir ListWidget kullanıyorsan addItem, Table kullanıyorsan insertRow yapmalısın
-        // ui->tableWidget_2->insertRow(0);
-        QMessageBox::information(this, "Kule", QString::fromStdString(ucak + " iniş izni aldı."));
+        QMessageBox::information(this, "Kule Kontrol", QString::fromStdString(ucak + " için iniş izni verildi."));
+
+        if (ui->tableWidget_2->rowCount() > 0) {
+            ui->tableWidget_2->removeRow(0);
+        }
+    } else {
+        QMessageBox::warning(this, "Kule Kontrol", "İniş bekleyen uçak yok!");
     }
 }
 
-// 3. BAGAJ TAHLİYE (Stack) - AZ ÖNCE EKSİK OLAN BUYDU!
-// 3. BAGAJ TAHLİYE (Stack Mantığı)
 void MainWindow::on_bagajTahliyeBtn_clicked() {
-    // Aynı kutudan bu kez Sefer Numarasını (Örn: TK1920) alıyoruz [cite: 558]
     string seferNo = ui->seferNoInput->text().toStdString();
-    // Sistemden bagaj listesini çekiyoruz [cite: 559]
     vector<string> bagajlar = sistem.bagajlariTahliyeEt(seferNo);
-
-    // Eski listeyi temizliyoruz [cite: 560]
     ui->kargoListe->clear();
-
-    // Eğer o sefere ait bagaj yoksa ekrana bilgi ver
     if (bagajlar.empty()) {
-        ui->kargoListe->addItem("Bu sefere ait bagaj bulunamadı veya sefer yok.");
+        ui->kargoListe->addItem("Bu sefere ait bagaj bulunamadı.");
         return;
     }
-
-    // Bagajları sırasıyla listeye ekle [cite: 561-563]
     for (const string& b : bagajlar) {
         ui->kargoListe->addItem(QString::fromStdString(b));
     }
 }
 
-// 4. ROTA HESAPLAMA (Dijkstra Mantığı)
-void MainWindow::on_rotaHesaplaBtn_clicked() {
-    // ComboBox'lardan şehirleri alıyoruz
-    string kalkis = ui->kalkisCombo->currentText().toStdString();
-    string varis = ui->varisCombo->currentText().toStdString();
-
-    // En kısa rotayı hesaplıyoruz
-    string sonuc = sistem.enKisaRota(kalkis, varis);
-
-    // Sonucu ekrandaki yazı alanına yazdırıyoruz
-    ui->rotaSonucLabel->setPlainText(QString::fromStdString(sonuc));
-}
-// Rota sayfasından Ana Menüye dönüş
-void MainWindow::on_btnGeriDon1_clicked() {
+void MainWindow::on_btnGeriDon1_clicked() { ui->stackedWidget->setCurrentIndex(0); }
+void MainWindow::on_btnGeriDonKule_clicked() {
     ui->stackedWidget->setCurrentIndex(0);
 }
-
-// Uçuşlar sayfasından Ana Menüye dönüş
-void MainWindow::on_btnGeriDon2_clicked() {
-    ui->stackedWidget->setCurrentIndex(0);
-}
-
-// Yolcular sayfasından Ana Menüye dönüş
 void MainWindow::on_btnGeriDon3_clicked() {
-    // Sayfayı ana menüye (0. indeks) çevir
     ui->stackedWidget->setCurrentIndex(0);
-
-    // Kullanıcı deneyimi için: Sayfadan çıkarken eski bilgileri temizle
     ui->pnrInput->clear();
     ui->kargoListe->clear();
     ui->yolcuBilgiLabel->setText("");
-    ui->pnrInput->clear();      // PNR kutusunu temizler
-    ui->seferNoInput->clear();  // Yeni eklediğimiz Sefer No kutusunu temizler
-
-    // İstersen sonuç listesini de temizleyebilirsin
-    ui->kargoListe->clear();
-    ui->yolcuBilgiLabel->setText("");
+    ui->seferNoInput->clear();
 }
+
+void MainWindow::on_rotaHesaplaBtn_clicked() {
+    std::string kalkis = ui->kalkisCombo->currentText().toStdString();
+    std::string varis = ui->varisCombo->currentText().toStdString();
+
+    if (kalkis == varis) {
+        ui->rotaSonucLabel->setPlainText("Hata: Kalkış ve varış şehri aynı olamaz!");
+        return;
+    }
+
+    std::string sonuc = sistem.enKisaRota(kalkis, varis);
+    ui->rotaSonucLabel->setPlainText(QString::fromStdString(sonuc));
+}
+

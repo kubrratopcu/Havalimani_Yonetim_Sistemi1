@@ -19,11 +19,13 @@ add_executable(Havalimani_Yonetim_Sistemi1
 
         KargoSistemi.cpp
         KuleYonetimi.cpp
+        KuleYonetimi.h
         YolcuSistemi.cpp
 
         mainwindow.ui
         mainwindow.cpp
         mainwindow.h
+        kuleYonetimi.h
 )
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

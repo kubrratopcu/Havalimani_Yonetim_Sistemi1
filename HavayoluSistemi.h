@@ -10,54 +10,46 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+
+#include "KuleYonetimi.h"
 #include "Modeller.h"
 
 using namespace std;
 
-// Havalimanı Yönetim Sistemi Ana Sınıfı
 class HavayoluSistemi {
 private:
-
-    // --- ÖZEL VERİ YAPILARI (Private: Sadece bu sınıf erişebilir) ---
-    map<string, Sefer> seferSistemi;             // Sefer No'ya göre tüm uçuş detaylarını saklayan sözlük
-    priority_queue<Ucak> kule;                   // İniş önceliğine (yakıt/acil durum) göre uçakları sıralayan yığın (Heap)
-    map<string, vector<pair<string, int>>> graf; // Şehirler arası uçuş rotalarını tutan komşuluk listesi
-    unordered_map<string, Yolcu> harita;         // PNR kodundan yolcu ismine O(1) hızında ulaşmamızı sağlayan Hash Table
+    // --- VERİ YAPILARI ---
+    map<string, Sefer> seferSistemi;
+    KuleYonetimi kuleYonetimi;                   // ÖNEMLİ: CPP'deki hata buradan geliyordu, ekledik.
+    map<string, vector<pair<string, int>>> graf;
+    unordered_map<string, Yolcu> harita;
     YolcuNode* yolcuAgaciKoku;
-    // Yolcuları alfabetik sıralayan İkili Arama Ağacı'nın (BST) başlangıç noktası
-
-
 
 public:
-
-    void yolculariYukle();
-    string yolcununUcusBilgisiniGetir(string pnr);
-
-    // Bunları ekle:
-    Yolcu pnrIleYolcuBul(string pnr);
-    string siradakiUcagiIndir();
-    vector<string> bagajlariTahliyeEt(string seferNo);
-
-    // --- SINIF METOTLARI (Public: Dışarıdan çağrılabilir) ---
-
-    // Yapıcı Metot (Constructor): Sistem belleğe yüklendiğinde ilk ayarları yapar
+    // --- CONSTRUCTOR & DESTRUCTOR ---
     HavayoluSistemi();
-
-    // Yıkıcı Metot (Destructor): Bellekte 'new' ile açılan alanları temizleyerek sızıntıları önler
-    // Hata buradaydı, bu satırın mutlaka burada olması gerekiyor!
     ~HavayoluSistemi();
 
-    // Veri Yükleme İşlemleri
-    void seferleriYukle();   // 'seferler.txt' dosyasını satır satır parçalar
-    void bagajlariYukle();   // 'bagajlar.txt' dosyasını okuyup ilgili sefere Stack olarak ekler
+    // --- TEMEL FONKSİYONLAR ---
+    void yolculariYukle();
+    void seferleriYukle();
+    void bagajlariYukle();
+    void rotalariYukle();
 
-
-    // Graf kullanarak rota hesaplama
+    // --- ALGORİTMALAR VE İŞLEMLER ---
+    std::string siradakiUcagiIndir();
     string enKisaRota(string kalkis, string varis);
+    Yolcu pnrIleYolcuBul(string pnr);
+    string yolcununUcusBilgisiniGetir(string pnr);
+    vector<string> bagajlariTahliyeEt(string seferNo);
 
+    // --- GETTER ---
+    // Sadece bir tane getGraf bıraktım, hata veren buydu:
+    std::map<std::string, std::vector<std::pair<std::string, int>>>& getGraf() { return graf; }
+
+    // --- BELLEK YÖNETİMİ ---
     void agaciTemizle(YolcuNode* kok);
     void seferListesiniTemizle(PnrNode*& bas);
-    // Bellek Yönetimi Yardımcıları (Rekürsif ve Pointer işlemleri)
 };
 
 #endif // HAVAYOLUSISTEMI_H
