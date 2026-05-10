@@ -52,8 +52,11 @@ void HavayoluSistemi::seferleriYukle() {
 
         Sefer s;                    // Yeni bir sefer nesnesi oluştur
         s.seferNo = sNo;
-        s.ucakId = stoi(uId);       // String'i Integer'a çevir
+        s.ucakId = stoi(uId);
+        s.kalkisSehri = kalkis; // EKLENDİ: Kalkış şehrini kaydet
+        s.varisSehri = varis;// String'i Integer'a çevir
         s.ucusZamani = stoll(zaman); // String'i Long Long'a (tarih için) çevir
+
 
         // PNR Listesini Parçalama (Örn: PNR1;PNR2 formatını ayırır)
         stringstream ssPnr(pnrList);
@@ -289,4 +292,18 @@ void HavayoluSistemi::yolculariYukle() {
     }
     dosya.close();
     cout << "[-] Yolcu Sistemi: Yolcular basariyla yuklendi." << endl;
+}
+string HavayoluSistemi::yolcununUcusBilgisiniGetir(string pnr) {
+    // Tüm seferleri tek tek gez
+    for (auto const& cift : seferSistemi) {
+        // Seferin içindeki yolcu listesine bak
+        for (string yPnr : cift.second.yolcuPnrListesi) {
+            // Eğer aradığımız PNR bu uçaktaysa bilgileri döndür
+            if (yPnr == pnr) {
+                return " | Sefer: " + cift.second.seferNo +
+                       " (" + cift.second.kalkisSehri + " -> " + cift.second.varisSehri + ")";
+            }
+        }
+    }
+    return " | Sefer: Bulunamadi";
 }

@@ -34,6 +34,8 @@ struct Ucak {
 struct Sefer {
     string seferNo;
     int ucakId;
+    string kalkisSehri; // EKLENDİ
+    string varisSehri;
     long long ucusZamani;
     vector<string> yolcuPnrListesi;
     stack<Bagaj> kargoBolumu;

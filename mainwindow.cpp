@@ -31,24 +31,27 @@ void MainWindow::on_btnRotaGit_clicked() { ui->stackedWidget->setCurrentIndex(1)
 
 // 1. PNR SORGULAMA (BST Arama)
 void MainWindow::on_pnrSorgulaBtn_clicked() {
-    // Kullanıcının girdiği metni al [cite: 534]
-    // mainwindow.cpp içinde pnrSorgulaBtn kısmını bul ve ilk satırı şöyle değiştir:
     QString pnr = ui->pnrInput->text().trimmed();
-
-    // Boş giriş yapıldıysa uyar [cite: 535-538]
     if (pnr.isEmpty()) {
         ui->yolcuBilgiLabel->setText("Lütfen bir PNR giriniz!");
         return;
-
     }
 
-    // Sistemden yolcuyu bul [cite: 539]
     Yolcu y = sistem.pnrIleYolcuBul(pnr.toStdString());
 
-    // Yolcu bulunduysa ekrana yaz, bulunamadıysa uyarı ver [cite: 540-544]
     if (!y.ad.empty()) {
-        // Yolcunun adını, soyadını ve koltuğunu yazdırıyoruz
-        ui->yolcuBilgiLabel->setText(QString::fromStdString("Yolcu: " + y.ad + " " + y.soyad + " | Koltuk: " + y.koltukNo));
+        // Uçuş bilgisini alıyoruz
+        string ekBilgi = sistem.yolcununUcusBilgisiniGetir(pnr.toStdString());
+
+        // GİZLİ DÜŞMANI YOK EDİYORUZ: Koltuk numarasının arkasındaki enter'ı siliyoruz
+        QString temizKoltuk = QString::fromStdString(y.koltukNo).trimmed();
+        QString temizEkBilgi = QString::fromStdString(ekBilgi).trimmed();
+
+        // Yazıları birleştiriyoruz
+        QString yazi = QString::fromStdString("Yolcu: " + y.ad + " " + y.soyad) +
+                       " | Koltuk: " + temizKoltuk + " " + temizEkBilgi;
+
+        ui->yolcuBilgiLabel->setText(yazi);
     } else {
         ui->yolcuBilgiLabel->setText("Yolcu sistemde bulunamadı.");
     }
@@ -117,6 +120,12 @@ void MainWindow::on_btnGeriDon3_clicked() {
 
     // Kullanıcı deneyimi için: Sayfadan çıkarken eski bilgileri temizle
     ui->pnrInput->clear();
+    ui->kargoListe->clear();
+    ui->yolcuBilgiLabel->setText("");
+    ui->pnrInput->clear();      // PNR kutusunu temizler
+    ui->seferNoInput->clear();  // Yeni eklediğimiz Sefer No kutusunu temizler
+
+    // İstersen sonuç listesini de temizleyebilirsin
     ui->kargoListe->clear();
     ui->yolcuBilgiLabel->setText("");
 }

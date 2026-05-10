@@ -31,6 +31,7 @@ private:
 public:
 
     void yolculariYukle();
+    string yolcununUcusBilgisiniGetir(string pnr);
 
     // Bunları ekle:
     Yolcu pnrIleYolcuBul(string pnr);
