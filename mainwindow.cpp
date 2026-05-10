@@ -31,16 +31,26 @@ void MainWindow::on_btnRotaGit_clicked() { ui->stackedWidget->setCurrentIndex(1)
 
 // 1. PNR SORGULAMA (BST Arama)
 void MainWindow::on_pnrSorgulaBtn_clicked() {
-    QString pnr = ui->pnrInput->text();
+    // Kullanıcının girdiği metni al [cite: 534]
+    // mainwindow.cpp içinde pnrSorgulaBtn kısmını bul ve ilk satırı şöyle değiştir:
+    QString pnr = ui->pnrInput->text().trimmed();
+
+    // Boş giriş yapıldıysa uyar [cite: 535-538]
     if (pnr.isEmpty()) {
-        QMessageBox::warning(this, "Uyarı", "Lütfen PNR giriniz!");
+        ui->yolcuBilgiLabel->setText("Lütfen bir PNR giriniz!");
         return;
+
     }
+
+    // Sistemden yolcuyu bul [cite: 539]
     Yolcu y = sistem.pnrIleYolcuBul(pnr.toStdString());
+
+    // Yolcu bulunduysa ekrana yaz, bulunamadıysa uyarı ver [cite: 540-544]
     if (!y.ad.empty()) {
-        ui->yolcuBilgiLabel->setText(QString::fromStdString("Yolcu: " + y.ad + " " + y.soyad));
+        // Yolcunun adını, soyadını ve koltuğunu yazdırıyoruz
+        ui->yolcuBilgiLabel->setText(QString::fromStdString("Yolcu: " + y.ad + " " + y.soyad + " | Koltuk: " + y.koltukNo));
     } else {
-        ui->yolcuBilgiLabel->setText("Yolcu bulunamadı.");
+        ui->yolcuBilgiLabel->setText("Yolcu sistemde bulunamadı.");
     }
 }
 
@@ -58,21 +68,21 @@ void MainWindow::on_kuleIndirBtn_clicked() {
 // 3. BAGAJ TAHLİYE (Stack) - AZ ÖNCE EKSİK OLAN BUYDU!
 // 3. BAGAJ TAHLİYE (Stack Mantığı)
 void MainWindow::on_bagajTahliyeBtn_clicked() {
-    // Giriş kutusundan sefer numarasını alıyoruz
-    string seferNo = ui->pnrInput->text().toStdString();
-
-    // Sistemden bagaj listesini çekiyoruz
+    // Aynı kutudan bu kez Sefer Numarasını (Örn: TK1920) alıyoruz [cite: 558]
+    string seferNo = ui->seferNoInput->text().toStdString();
+    // Sistemden bagaj listesini çekiyoruz [cite: 559]
     vector<string> bagajlar = sistem.bagajlariTahliyeEt(seferNo);
 
-    // Listeyi temizliyoruz
+    // Eski listeyi temizliyoruz [cite: 560]
     ui->kargoListe->clear();
 
+    // Eğer o sefere ait bagaj yoksa ekrana bilgi ver
     if (bagajlar.empty()) {
-        ui->kargoListe->addItem("Bu sefere ait bagaj bulunamadı.");
+        ui->kargoListe->addItem("Bu sefere ait bagaj bulunamadı veya sefer yok.");
         return;
     }
 
-    // Bagajları ekrana tek tek yazdırıyoruz
+    // Bagajları sırasıyla listeye ekle [cite: 561-563]
     for (const string& b : bagajlar) {
         ui->kargoListe->addItem(QString::fromStdString(b));
     }
@@ -89,4 +99,24 @@ void MainWindow::on_rotaHesaplaBtn_clicked() {
 
     // Sonucu ekrandaki yazı alanına yazdırıyoruz
     ui->rotaSonucLabel->setPlainText(QString::fromStdString(sonuc));
+}
+// Rota sayfasından Ana Menüye dönüş
+void MainWindow::on_btnGeriDon1_clicked() {
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+// Uçuşlar sayfasından Ana Menüye dönüş
+void MainWindow::on_btnGeriDon2_clicked() {
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+// Yolcular sayfasından Ana Menüye dönüş
+void MainWindow::on_btnGeriDon3_clicked() {
+    // Sayfayı ana menüye (0. indeks) çevir
+    ui->stackedWidget->setCurrentIndex(0);
+
+    // Kullanıcı deneyimi için: Sayfadan çıkarken eski bilgileri temizle
+    ui->pnrInput->clear();
+    ui->kargoListe->clear();
+    ui->yolcuBilgiLabel->setText("");
 }

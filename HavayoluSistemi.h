@@ -30,7 +30,7 @@ private:
 
 public:
 
-    // ... diğer kodların ...
+    void yolculariYukle();
 
     // Bunları ekle:
     Yolcu pnrIleYolcuBul(string pnr);

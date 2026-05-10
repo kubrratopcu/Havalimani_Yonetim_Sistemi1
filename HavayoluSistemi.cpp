@@ -8,6 +8,7 @@ HavayoluSistemi::HavayoluSistemi() {
     yolcuAgaciKoku = nullptr;
 
     // VERİLERİ BURADA YÜKLEMELİSİN
+    yolculariYukle();
     seferleriYukle();
     bagajlariYukle();
     // rotalariYukle(); // Varsa ekle
@@ -114,24 +115,92 @@ string HavayoluSistemi::siradakiUcagiIndir() {
     return "Kule Bos";
 }
 // 1. BAGAJLARI YÜKLEME (Dosyadan Okuma Taslağı)
-void HavayoluSistemi::bagajlariYukle() {
-    // Şimdilik boş bırakabilirsin, hata vermemesi için gövde olması yeterli.
-}
+
+    // =============================================
+    void HavayoluSistemi::bagajlariYukle() {
+        ifstream dosya("bagajlar.txt");
+        string satir;
+
+        if (!dosya.is_open()) return;
+
+        while (getline(dosya, satir)) {
+            stringstream ss(satir);
+            string bId, pnr, agirlik;
+
+            getline(ss, bId, ',');     // bagaj ID
+            getline(ss, pnr, ',');     // yolcu PNR
+            getline(ss, agirlik, ','); // bagaj ağırlığı
+
+            // Satır sonundaki gizli boşlukları/hataları temizle
+            if (!agirlik.empty() && agirlik.back() == '\r') {
+                agirlik.pop_back();
+            }
+            if(bId.empty() || pnr.empty()) continue;
+
+            // Bagaj nesnesi oluştur
+            Bagaj b;
+            b.id = stoi(bId);
+            b.pnr_sahibi = pnr;
+            b.agirlik = stof(agirlik);
+
+            // Bagajın sahibini bul ve o Sefer'in yığınına (Stack) ekle
+            for (auto& cift : seferSistemi) {
+                for (string yPnr : cift.second.yolcuPnrListesi) {
+                    if (yPnr == pnr) {
+                        cift.second.kargoBolumu.push(b);
+                    }
+                }
+            }
+        }
+        dosya.close();
+    }
+
 
 // 2. BAGAJ TAHLİYE (Stack - LIFO Mantığı)
 vector<string> HavayoluSistemi::bagajlariTahliyeEt(string seferNo) {
     vector<string> liste;
 
-    // Sefer sisteminde bu uçuş var mı kontrol et
-    if (seferSistemi.find(seferNo) != seferSistemi.end()) {
-        // Seferin içindeki kargoBolumu (stack) yapısını boşaltıyoruz
-        while (!seferSistemi[seferNo].kargoBolumu.empty()) {
-            Bagaj b = seferSistemi[seferNo].kargoBolumu.top();
-            string bilgi = "Bagaj ID: " + to_string(b.id) + " - Sahibi: " + b.pnr_sahibi;
-            liste.push_back(bilgi);
-            seferSistemi[seferNo].kargoBolumu.pop();
-        }
+    // 1. KONTROL: Sistemde böyle bir sefer var mı?
+    if (seferSistemi.find(seferNo) == seferSistemi.end()) {
+        liste.push_back("(!) HATA: Sistemde '" + seferNo + "' adinda bir sefer kayitli degil.");
+        return liste;
     }
+
+    // Seferi referans (&) olarak alıyoruz ki, pop() yaptığımızda bagajlar gerçekten silinsin
+    Sefer& secilenSefer = seferSistemi[seferNo];
+
+    // 2. KONTROL: Seferin kargo bölümü boş mu?
+    if (secilenSefer.kargoBolumu.empty()) {
+        liste.push_back("(!) Bu seferde bagaj bulunmamaktadir veya tum bagajlar tahliye edildi.");
+        return liste;
+    }
+
+    // 3. TAHLİYE İŞLEMİ (LIFO Mantığı ve Hash Table ile İsim Bulma)
+    int sira = 1;
+    while (!secilenSefer.kargoBolumu.empty()) {
+        Bagaj b = secilenSefer.kargoBolumu.top();
+
+        string sahibi = "Bilinmiyor";
+
+        // Hash Table (harita) içinde PNR kodunu arıyoruz
+        if (harita.count(b.pnr_sahibi)) {
+            sahibi = harita[b.pnr_sahibi].ad + " " + harita[b.pnr_sahibi].soyad;
+        }
+
+        string bilgi = to_string(sira) + ". Tahliye Edilen Bagaj -> ID: " + to_string(b.id) +
+                       " | Sahibi: " + sahibi + " (" + b.pnr_sahibi + ")";
+
+        liste.push_back(bilgi);
+
+        // Bagajı uçaktan indir
+        secilenSefer.kargoBolumu.pop();
+        sira++;
+    }
+
+    // İşlem bittiğine dair en sona bir onay mesajı ekle
+    liste.push_back("--------------------------------------------------");
+    liste.push_back("[✔] Tum bagajlar teslim noktasina gonderildi.");
+
     return liste;
 }
 
@@ -186,4 +255,38 @@ string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
     }
 
     return kalkis + " -> " + varis + " | En kisa mesafe: " + to_string(mesafeler[varis]) + " km";
+}
+// =============================================
+// YOLCULARI DOSYADAN OKUYUP SİSTEME YÜKLER
+// =============================================
+void HavayoluSistemi::yolculariYukle() {
+    ifstream dosya("yolcular.txt");
+    string satir;
+
+    if (!dosya.is_open()) {
+        return; // Dosya yoksa sessizce çık
+    }
+
+    while (getline(dosya, satir)) {
+        stringstream ss(satir);
+        string ad, soyad, pnr, koltuk;
+
+        getline(ss, ad, ',');
+        getline(ss, soyad, ',');
+        getline(ss, pnr, ',');
+        getline(ss, koltuk, ',');
+
+        // Windows satır sonu (\r) karakteri varsa temizle (Çok yaygın bir gizli hatadır)
+        if (!koltuk.empty() && koltuk.back() == '\r') {
+            koltuk.pop_back();
+        }
+
+        // Yolcu nesnesini oluştur
+        Yolcu y = {ad, soyad, pnr, koltuk};
+
+        // Hash Table'a (harita) PNR kodu ile kaydet
+        harita[pnr] = y;
+    }
+    dosya.close();
+    cout << "[-] Yolcu Sistemi: Yolcular basariyla yuklendi." << endl;
 }

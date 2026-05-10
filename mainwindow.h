@@ -17,7 +17,9 @@ public:
     ~MainWindow();
 
 private slots:
-
+    void on_btnGeriDon1_clicked();
+    void on_btnGeriDon2_clicked();
+    void on_btnGeriDon3_clicked();
     void on_btnUcuslarGit_clicked();
     void on_btnYolcularGit_clicked();
     void on_btnRotaGit_clicked();
