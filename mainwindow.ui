@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="sayfaAnaMenu">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -130,46 +130,19 @@
      </widget>
      <widget class="QWidget" name="sayfaRota">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QTextEdit" name="textEdit">
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-hr { height: 1px; border-width: 0; }
-li.unchecked::marker { content: &quot;\2610&quot;; }
-li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Kalkış Şehri&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="kalkisCombo"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="rotaHesaplaBtn">
+       <item row="4" column="2">
+        <widget class="QPushButton" name="btnGeriDon1">
          <property name="text">
-          <string>Rota Hesapla</string>
+          <string>PushButton</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QTextEdit" name="textEdit_2">
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-hr { height: 1px; border-width: 0; }
-li.unchecked::marker { content: &quot;\2610&quot;; }
-li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Varış Şehri&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <item row="3" column="2">
+        <widget class="QTextEdit" name="textEdit_3">
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="varisCombo"/>
        </item>
        <item row="3" column="0">
         <widget class="QPlainTextEdit" name="rotaSonucLabel">
@@ -178,19 +151,32 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QTextEdit" name="textEdit_3">
-         <property name="readOnly">
-          <bool>true</bool>
+       <item row="0" column="2">
+        <widget class="QComboBox" name="kalkisCombo"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Kalkış Şehri</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="btnGeriDon1">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>PushButton</string>
+          <string>Varış Şehri</string>
          </property>
         </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="rotaHesaplaBtn">
+         <property name="text">
+          <string>Rota Hesapla</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QComboBox" name="varisCombo"/>
        </item>
       </layout>
      </widget>
