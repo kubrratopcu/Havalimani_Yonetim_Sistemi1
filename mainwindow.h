@@ -1,14 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include "HavayoluSistemi.h" // Backend dosyan
+#include <QWidget>
+#include "HavayoluSistemi.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class MainWindow : public QWidget
 {
     Q_OBJECT
 
@@ -16,16 +16,20 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    private slots:
-        // Slotlar: Tasarımda butonlara verdiğin isimlerle aynı olmalı
-        void on_pnrSorgulaBtn_clicked();
-    void on_kuleIndirBtn_clicked();
-    void on_bagajTahliyeBtn_clicked(); // Yeni eklendi
-    void on_rotaHesaplaBtn_clicked();
+private slots:
 
+    void on_btnUcuslarGit_clicked();
+    void on_btnYolcularGit_clicked();
+    void on_btnRotaGit_clicked();
+
+    void on_pnrSorgulaBtn_clicked();
+    void on_kuleIndirBtn_clicked();
+    void on_bagajTahliyeBtn_clicked();
+    void on_rotaHesaplaBtn_clicked();
 
 private:
     Ui::MainWindow *ui;
-    HavayoluSistemi sistem; // Senin yazdığın backend sınıfı
+    HavayoluSistemi sistem;
 };
+
 #endif // MAINWINDOW_H
