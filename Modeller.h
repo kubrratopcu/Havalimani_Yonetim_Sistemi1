@@ -19,12 +19,14 @@ struct Ucak {
     long long varisZamani;
     bool acilDurum;
 
-    // Priority Queue için sıralama mantığı
+    // Priority Queue (Öncelikli Kuyruk) için sıralama mantığı
     bool operator<(const Ucak& diger) const {
+        // Acil durumu olan uçak her zaman önceliklidir
         if (acilDurum != diger.acilDurum) {
-            return !acilDurum; // Acil durumu olan (1) önceliklidir (daha büyüktür)
+            return !acilDurum;
         }
-        return yakit > diger.yakit; // Yakıtı AZ olan önceliklidir
+        // Acil durumlar eşitse, yakıtı AZ olan uçak önceliklidir
+        return yakit > diger.yakit;
     }
 };
 

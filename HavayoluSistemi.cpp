@@ -1,5 +1,6 @@
 #include "HavayoluSistemi.h"
-
+#include <set>    // Set veri yapısını kullanabilmek için şarttır
+#include <cctype> // toupper() fonksiyonu için gereklidir
 // ---------------------------------------------------------
 // YAPICI METOT (CONSTRUCTOR)
 // ---------------------------------------------------------
@@ -136,8 +137,53 @@ vector<string> HavayoluSistemi::bagajlariTahliyeEt(string seferNo) {
 
 // 3. ROTA HESAPLAMA (Graph/Dijkstra Taslağı)
 string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
-    if(kalkis == varis) return "Aynı şehri seçtiniz.";
-    // Buraya Dijkstra algoritmanı ekleyebilirsin.
-    return kalkis + " -> " + varis + " (Rota hesaplandı)";
-}
+    if (kalkis == varis) return "Ayni sehri sectiniz.";
 
+    // Girdi temizliği: İlk harfleri büyük yapıyoruz
+    if (!kalkis.empty()) kalkis[0] = toupper(kalkis[0]);
+    if (!varis.empty()) varis[0] = toupper(varis[0]);
+
+    // Başlangıç şehri graf yapısında var mı kontrol et
+    if (graf.find(kalkis) == graf.end()) {
+        return "Hata: '" + kalkis + "' sehri rota listesinde yok!";
+    }
+
+    // Mesafeleri sonsuz (1e9) olarak başlatıyoruz
+    map<string, int> mesafeler;
+    for (auto const& [sehir, komsular] : graf) {
+        mesafeler[sehir] = 1e9;
+        for (auto& komsu : komsular) {
+            mesafeler[komsu.first] = 1e9;
+        }
+    }
+
+    mesafeler[kalkis] = 0;
+    set<pair<int, string>> kuyruk; // Min-Priority Queue görevi görür
+    kuyruk.insert({0, kalkis});
+
+    while (!kuyruk.empty()) {
+        string u = kuyruk.begin()->second;
+        int mevcutMesafe = kuyruk.begin()->first;
+        kuyruk.erase(kuyruk.begin());
+
+        if (u == varis) break;
+
+        // Komşuları gez (Adjacency List üzerinden)
+        for (auto& komsu : graf[u]) {
+            string v = komsu.first;
+            int agirlik = komsu.second;
+
+            if (mevcutMesafe + agirlik < mesafeler[v]) {
+                kuyruk.erase({mesafeler[v], v});
+                mesafeler[v] = mevcutMesafe + agirlik;
+                kuyruk.insert({mesafeler[v], v});
+            }
+        }
+    }
+
+    if (mesafeler[varis] == 1e9) {
+        return "Hata: '" + varis + "' sehrine ucus yolu bulunamadi!";
+    }
+
+    return kalkis + " -> " + varis + " | En kisa mesafe: " + to_string(mesafeler[varis]) + " km";
+}

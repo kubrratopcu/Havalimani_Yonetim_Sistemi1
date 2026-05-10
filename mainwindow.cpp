@@ -56,20 +56,37 @@ void MainWindow::on_kuleIndirBtn_clicked() {
 }
 
 // 3. BAGAJ TAHLİYE (Stack) - AZ ÖNCE EKSİK OLAN BUYDU!
+// 3. BAGAJ TAHLİYE (Stack Mantığı)
 void MainWindow::on_bagajTahliyeBtn_clicked() {
-    string seferNo = ui->pnrInput->text().toStdString(); // Sefer no girişi için uygun kutuyu seç
+    // Giriş kutusundan sefer numarasını alıyoruz
+    string seferNo = ui->pnrInput->text().toStdString();
+
+    // Sistemden bagaj listesini çekiyoruz
     vector<string> bagajlar = sistem.bagajlariTahliyeEt(seferNo);
 
+    // Listeyi temizliyoruz
     ui->kargoListe->clear();
-    for(const string& b : bagajlar) {
+
+    if (bagajlar.empty()) {
+        ui->kargoListe->addItem("Bu sefere ait bagaj bulunamadı.");
+        return;
+    }
+
+    // Bagajları ekrana tek tek yazdırıyoruz
+    for (const string& b : bagajlar) {
         ui->kargoListe->addItem(QString::fromStdString(b));
     }
 }
 
-// 4. ROTA HESAPLAMA (Dijkstra - Graph)
+// 4. ROTA HESAPLAMA (Dijkstra Mantığı)
 void MainWindow::on_rotaHesaplaBtn_clicked() {
+    // ComboBox'lardan şehirleri alıyoruz
     string kalkis = ui->kalkisCombo->currentText().toStdString();
     string varis = ui->varisCombo->currentText().toStdString();
+
+    // En kısa rotayı hesaplıyoruz
     string sonuc = sistem.enKisaRota(kalkis, varis);
+
+    // Sonucu ekrandaki yazı alanına yazdırıyoruz
     ui->rotaSonucLabel->setPlainText(QString::fromStdString(sonuc));
 }
