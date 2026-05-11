@@ -2,7 +2,7 @@ Kubra,Yilmaz,PNR001,01A
 Sude,Kaya,PNR002,01B
 Beyza,Demir,PNR003,02A
 Adem,Sahin,PNR004,02B
-Bunyamin,Ciylan,PNR005,01C
+Bunyamin,Caner ,PNR005,01C
 Ahmet,Ak,PNR006,03A
 Mehmet,Yurt,PNR007,03B
 Ayse,Gul,PNR008,04A

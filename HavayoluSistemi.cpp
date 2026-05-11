@@ -141,14 +141,22 @@ vector<string> HavayoluSistemi::bagajlariTahliyeEt(string seferNo) {
 
 string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
     if (kalkis == varis) return "Ayni sehri sectiniz.";
-    if (graf.find(kalkis) == graf.end()) return "Rota bulunamadi.";
 
     map<string, int> mesafeler;
     map<string, string> ebeveyn;
+
+    // BÜTÜN şehirleri (hem kalkış hem varış) sonsuz (1e9) mesafe ile başlatıyoruz!
     for (auto const& [sehir, komsular] : graf) {
         mesafeler[sehir] = 1e9;
         ebeveyn[sehir] = "";
+        for (auto const& komsu : komsular) {
+            mesafeler[komsu.first] = 1e9;
+            ebeveyn[komsu.first] = "";
+        }
     }
+
+    // Eğer kalkış şehri rotalarda hiç yoksa
+    if (mesafeler.find(kalkis) == mesafeler.end()) return "Rota bulunamadi.";
 
     mesafeler[kalkis] = 0;
     set<pair<int, string>> kuyruk;
@@ -158,7 +166,9 @@ string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
         string u = kuyruk.begin()->second;
         int d = kuyruk.begin()->first;
         kuyruk.erase(kuyruk.begin());
+
         if (u == varis) break;
+
         for (auto& komsu : graf[u]) {
             if (d + komsu.second < mesafeler[komsu.first]) {
                 kuyruk.erase({mesafeler[komsu.first], komsu.first});
@@ -169,9 +179,14 @@ string HavayoluSistemi::enKisaRota(string kalkis, string varis) {
         }
     }
 
-    if (mesafeler[varis] >= 1e9) return "Rota bulunamadi.";
+    if (mesafeler.find(varis) == mesafeler.end() || mesafeler[varis] >= 1e9) {
+        return "Rota bulunamadi.";
+    }
+
     string yol = "";
-    for (string s = varis; s != ""; s = ebeveyn[s]) yol = s + (yol == "" ? "" : " -> " + yol);
+    for (string s = varis; s != ""; s = ebeveyn[s]) {
+        yol = s + (yol == "" ? "" : " -> " + yol);
+    }
     return "En Kisa Rota: " + yol + "\nMesafe: " + to_string(mesafeler[varis]) + " km";
 }
 

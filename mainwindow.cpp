@@ -20,6 +20,26 @@ MainWindow::MainWindow(QWidget *parent)
     aktifSehirler.sort();
     ui->kalkisCombo->addItems(aktifSehirler);
     ui->kalkisCombo->setCurrentIndex(-1);
+    ui->tableWidget_2->clearContents();
+    ui->tableWidget_2->setRowCount(0);
+    ui->tableWidget_2->setColumnCount(4);
+    ui->tableWidget_2->setHorizontalHeaderLabels({"Uçuş No", "Yakıt", "Havayolu", "Durum"});
+
+    KuleYonetimi geciciKule = sistem.getKule();
+    int satir = 0;
+    while (!geciciKule.bosMu()) {
+        Ucak u = geciciKule.enOncelikliyiGetir();
+        geciciKule.pop();
+
+        ui->tableWidget_2->insertRow(satir);
+        ui->tableWidget_2->setItem(satir, 0, new QTableWidgetItem(QString::number(u.id)));
+        ui->tableWidget_2->setItem(satir, 1, new QTableWidgetItem(QString::number(u.yakit) + "%"));
+        ui->tableWidget_2->setItem(satir, 2, new QTableWidgetItem(QString::fromStdString(u.havayolu)));
+
+        QString oncelikMetni = u.acilDurum ? "ACİL DURUM" : "Normal";
+        ui->tableWidget_2->setItem(satir, 3, new QTableWidgetItem(oncelikMetni));
+        satir++;
+    }
 }
 
 MainWindow::~MainWindow()
@@ -27,56 +47,60 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_kalkisCombo_currentTextChanged(const QString &arg1)
-{
-    if (arg1.isEmpty() || arg1 == "") {
-        ui->varisCombo->clear();
-        return;
-    }
-
+void MainWindow::on_kalkisCombo_currentTextChanged(const QString &arg1) {
+    // 1. İşlem yaparken arayüzün kafası karışmasın diye sinyalleri durdur
     ui->varisCombo->blockSignals(true);
     ui->varisCombo->clear();
 
-    std::string kalkisStr = arg1.toStdString();
-    auto& komsularMap = sistem.getGraf();
-
-    if (komsularMap.count(kalkisStr)) {
-        QStringList varisSehirleri;
-        for (const auto& komsu : komsularMap[kalkisStr]) {
-            varisSehirleri << QString::fromStdString(komsu.first);
-        }
-        varisSehirleri.sort();
-        ui->varisCombo->addItems(varisSehirleri);
-        ui->varisCombo->setCurrentIndex(-1);
+    // 2. Eğer kalkış şehri henüz seçilmediyse boş bırak
+    if (arg1.isEmpty()) {
+        ui->varisCombo->blockSignals(false);
+        return;
     }
 
+    // 3. Varış listesi için tüm şehirleri tam liste halinde oluştur
+    QStringList tumSehirler = {
+        "Adana", "Ankara", "Antalya", "Bodrum", "Bursa", "Diyarbakir",
+        "Erzurum", "Eskisehir", "Gaziantep", "Istanbul", "Izmir",
+        "Konya", "Mardin", "Mugla", "Samsun", "Sanliurfa", "Trabzon", "Van"
+    };
+
+    // 4. Kalkış olarak seçtiğimiz şehri varış listesinden ÇIKAR (Ankara'dan Ankara'ya gidilmez)
+    tumSehirler.removeOne(arg1);
+    tumSehirler.sort();
+
+    // 5. Temizlenmiş ve sıralanmış tam listeyi varış kutusuna ekle
+    ui->varisCombo->addItems(tumSehirler);
+    ui->varisCombo->setCurrentIndex(-1); // Sayfa açıldığında boş görünsün
+
+    // 6. Sinyalleri geri aç
     ui->varisCombo->blockSignals(false);
 }
-
 void MainWindow::on_btnKuleGit_clicked() {
+    // 1. Önce Kule sayfasına geçiş yap (Burdaki sayının doğru olduğundan emin olmalıyız)
     ui->stackedWidget->setCurrentIndex(2);
 
+    // 2. Tabloyu sıfırla ve başlıkları GÜNCELLE
+    ui->tableWidget_2->clearContents();
     ui->tableWidget_2->setRowCount(0);
     ui->tableWidget_2->setColumnCount(4);
-    ui->tableWidget_2->setHorizontalHeaderLabels({"Uçuş No", "Yakıt", "Havayolu", "Öncelik"});
+    ui->tableWidget_2->setHorizontalHeaderLabels({"Uçuş No", "Yakıt", "Havayolu", "Durum"});
 
-    // Kule kopyasını alıyoruz (Hata alırsan HavayoluSistemi.h'a getKule eklemeyi unutma!)
+    // 3. Arka planda hazır bekleyen uçakları çek
     KuleYonetimi geciciKule = sistem.getKule();
 
+    // 4. Tabloyu satır satır doldur
     int satir = 0;
     while (!geciciKule.bosMu()) {
         Ucak u = geciciKule.enOncelikliyiGetir();
         geciciKule.pop();
 
         ui->tableWidget_2->insertRow(satir);
-
-        // DÜZELTİLEN SATIR BURASI:
         ui->tableWidget_2->setItem(satir, 0, new QTableWidgetItem(QString::number(u.id)));
-
         ui->tableWidget_2->setItem(satir, 1, new QTableWidgetItem(QString::number(u.yakit) + "%"));
         ui->tableWidget_2->setItem(satir, 2, new QTableWidgetItem(QString::fromStdString(u.havayolu)));
 
-        QString oncelikMetni = u.acilDurum ? "ACİL DURUM" : "Normal";
+        QString oncelikMetni = u.acilDurum ? "ACİL" : "Normal";
         ui->tableWidget_2->setItem(satir, 3, new QTableWidgetItem(oncelikMetni));
 
         satir++;

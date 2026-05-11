@@ -23,28 +23,28 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="sayfaAnaMenu">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="btnKuleGit">
        <property name="text">
-        <string>Uçuş Operasyonları</string>
+        <string>PNR Sorgulama</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btnYolcularGit">
        <property name="text">
-        <string>Yolcu Sorgulama</string>
+        <string>Rota Analizi</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btnRotaGit">
        <property name="text">
-        <string>Rota Analizi</string>
+        <string>Uçuş Operasyonları</string>
        </property>
       </widget>
      </item>
@@ -122,7 +122,7 @@
       <string/>
      </property>
      <property name="placeholderText">
-      <string>PNR GİRİNİZ(Örn: PNR111):</string>
+      <string>PNR GİRİNİZ(Örn: PNR001):</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pnrSorgulaBtn">
@@ -200,7 +200,7 @@
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Sefer No (Örn: TK1920)</string>
+      <string>Sefer No (Örn: TK01)</string>
      </property>
     </widget>
    </widget>
