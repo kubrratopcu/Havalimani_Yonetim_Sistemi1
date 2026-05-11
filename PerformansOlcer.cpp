@@ -26,7 +26,7 @@ public:
     }
 
 
-     // @brief Destructor: Nesne yok edildiği an süreyi durdurur ve milisaniye cinsinden yazdırır.
+     //Destructor: Nesne yok edildiği an süreyi durdurur ve milisaniye cinsinden yazdırır.
 
     ~PerformansOlcer() {
         // Bitiş zamanını al
