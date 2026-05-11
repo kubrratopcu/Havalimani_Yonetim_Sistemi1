@@ -1,124 +1,100 @@
 #include <iostream>
-#include <fstream>    // Dosya okuma için (ifstream) [cite: 144]
-#include <sstream>    // Parçalama için (stringstream) [cite: 145]
-#include <map>        // MAP hatasını çözen satır bu!
-#include <unordered_map> // BAGAJ TAHLİYE hatasını çözen satır bu!
+#include <fstream>       // Dosya okuma/yazma işlemleri (File I/O) için
+#include <sstream>       // String parçalama (Parsing) işlemleri için
+#include <map>           // Red-Black Tree tabanlı arama yapısı (O(log n))
+#include <unordered_map> // Hash Table tabanlı eşleştirme yapısı (O(1))
 #include <string>
-#include <vector>     // Vektör kullanımı için [cite: 253]
+#include <vector>        // Dinamik diziler (Listeler) için
 #include "Modeller.h"
+
 using namespace std;
 
-// =============================================
-// SEFERLERİ DOSYADAN OKUYUP SİSTEME YÜKLER
-// =============================================
+// ==============================================================================
+// 1. SEFERLERİ YÜKLEME (DOSYA OKUMA VE MAP ENTEGRASYONU)
+// seferler.txt dosyasındaki virgülle ayrılmış (CSV) veriler okunur.
+// Sefer numaraları "Primary Key" kabul edilerek, veriler arama maliyeti
+// O(\log n) olan std::map (Red-Black Tree) veri yapısına yüklenir.
+// ==============================================================================
 void seferleriYukle(map<string, Sefer>& seferSistemi) {
-
-    // seferler.txt dosyasını aç
     ifstream dosya("seferler.txt");
     string satir;
 
-    // Eğer dosya açılamazsa fonksiyondan çık
     if (!dosya.is_open()) return;
 
-    // Dosyayı satır satır oku
+    // Satır satır okuma döngüsü (End of File'a kadar)
     while (getline(dosya, satir)) {
-
-        // Satırı parçalamak için stringstream kullan
         stringstream ss(satir);
-
-        // CSV formatındaki verileri değişkenlere ayır
         string seferNo, ucakId, kalkis, varis, zaman;
-        getline(ss, seferNo, ','); // sefer numarası
-        getline(ss, ucakId, ',');  // uçak ID
-        getline(ss, kalkis, ',');  // kalkış noktası
-        getline(ss, varis, ',');   // varış noktası
-        getline(ss, zaman, ',');   // uçuş zamanı (timestamp)
 
-        // Yeni bir Sefer nesnesi oluştur
+        // CSV formatındaki satırı ',' (virgül) ayırıcısına (delimiter) göre parçala
+        getline(ss, seferNo, ',');
+        getline(ss, ucakId, ',');
+        getline(ss, kalkis, ',');
+        getline(ss, varis, ',');
+        getline(ss, zaman, ',');
+
         Sefer s;
-
-        // Okunan verileri nesneye aktar
         s.seferNo = seferNo;
-        s.ucakId = stoi(ucakId);     // string → int dönüşüm
-        s.ucusZamani = stoll(zaman); // string → long long dönüşüm
+        s.ucakId = stoi(ucakId);     // String veriyi Tamsayıya (Integer) çevir
+        s.ucusZamani = stoll(zaman); // String veriyi Uzun Tamsayıya (Long Long) çevir
 
-        // TEST AMAÇLI:
-        // Her sefere PNR111 yolcusunu ekliyoruz
-        // (bagaj eşleşmesini göstermek için)
+        // [TEST]: Bagaj eşleşmesini garantilemek için geçici bir PNR eklemesi
         s.yolcuPnrListesi.push_back("PNR111");
 
-        // Map içine ekle (key = seferNo)
+        // Sefer objesini Map yapısına ekle. Key = Sefer Numarası, Value = Sefer Objesi
         seferSistemi[seferNo] = s;
     }
-
-    // Dosyayı kapat
     dosya.close();
-
-    // Bilgi mesajı
     cout << "[-] Sefer Sistemi: Seferler yuklendi." << endl;
 }
 
-
-// =============================================
-// BAGAJLARI OKUYUP İLGİLİ SEFERİN STACK'İNE EKLER
-// =============================================
+// ==============================================================================
+// 2. BAGAJLARI YÜKLEME (STACK / YIĞIN MİMARİSİ)
+// bagajlar.txt dosyasından okunan kargolar, ait oldukları yolcunun bulunduğu
+// uçağın kargo bölümüne yüklenir. Kargo bölümü std::stack (Yığın) yapısındadır.
+// Bu fiziksel uçak yüklemesini (LIFO mantığı) bilgisayar ortamında simüle eder.
+// ==============================================================================
 void bagajlariYukle(map<string, Sefer>& seferSistemi) {
-
-    // bagajlar.txt dosyasını aç
     ifstream dosya("bagajlar.txt");
     string satir;
 
-    // Dosya açılamazsa çık
     if (!dosya.is_open()) return;
 
-    // Dosyayı satır satır oku
     while (getline(dosya, satir)) {
-
-        // Satırı parçalamak için stringstream kullan
         stringstream ss(satir);
-
-        // Bagaj bilgileri
         string bId, pnr, agirlik;
 
-        getline(ss, bId, ',');     // bagaj ID
-        getline(ss, pnr, ',');     // yolcu PNR
-        getline(ss, agirlik, ','); // bagaj ağırlığı
+        getline(ss, bId, ',');
+        getline(ss, pnr, ',');
+        getline(ss, agirlik, ',');
 
-        // Bagaj nesnesi oluştur
+        // Uniform Initialization ile Bagaj Struct'ı oluşturuluyor
         Bagaj b = {
-            stoi(bId),     // ID → int
-            pnr,           // PNR
-            stof(agirlik)  // ağırlık → float
+            stoi(bId),
+            pnr,
+            stof(agirlik)  // String'i Ondalıklı Sayıya (Float) çevir
         };
 
-        // =============================================
-        // BAGAJI DOĞRU SEFERE YERLEŞTİRME
-        // =============================================
-
-        // Tüm seferleri dolaş
+        // Sistemdeki tüm seferleri (O(N)) ve seferin yolcularını (O(M)) gez
         for (auto& cift : seferSistemi) {
-
-            // Seferdeki yolcuları kontrol et
             for (string yPnr : cift.second.yolcuPnrListesi) {
-
-                // Eğer bagajın sahibi bu yolcuysa
+                // Eğer bagajın PNR numarası, bu seferdeki bir yolcuyla eşleşirse
                 if (yPnr == pnr) {
-
-                    // Bagajı o seferin kargo bölümüne ekle
-                    // (STACK yapısı → LIFO mantığı)
+                    // Bagajı Stack'in en üstüne (Top) ekle. İşlem maliyeti: O(1)
                     cift.second.kargoBolumu.push(b);
                 }
             }
         }
     }
-
-    // Dosyayı kapat
     dosya.close();
-
-    // Bilgi mesajı
     cout << "[-] Kargo Sistemi: Bagajlar ucaklarin yiginina (Stack) yuklendi." << endl;
 }
-// KargoSistemi.cpp içindeki fonksiyonu bu şekilde değiştir:
+
+// ==============================================================================
+// 3. BAGAJLARI TAHLİYE ETME (LIFO - SON GİREN İLK ÇIKAR) VE HASH TABLE ARAMASI
+// Uçak hedefe vardığında Stack yapısındaki kargo boşaltılır.
+// Ekrana yolcu ismini yazdırmak için unordered_map (Hash Table) kullanılır.
+// ==============================================================================
 void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcuHaritasi) {
     cout << "\n[LIFO] " << secilenSefer.seferNo << " seferi bagajlari bosaltiliyor..." << endl;
 
@@ -128,11 +104,14 @@ void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcu
     }
 
     int sira = 1;
+    // Stack boşalana kadar en üstteki (Top) elemanı al ve sil (Pop)
     while (!secilenSefer.kargoBolumu.empty()) {
         Bagaj b = secilenSefer.kargoBolumu.top();
 
         string sahibi = "Bilinmiyor";
-        // Map içinde PNR'ı arıyoruz
+
+        // HASH TABLE ARAMASI: unordered_map sayesinde PNR araması O(1) sabit zamanda yapılır.
+        // count() fonksiyonu, o anahtarın tabloda olup olmadığını inanılmaz bir hızla kontrol eder.
         if (yolcuHaritasi.count(b.pnr_sahibi)) {
             sahibi = yolcuHaritasi[b.pnr_sahibi].ad + " " + yolcuHaritasi[b.pnr_sahibi].soyad;
         }
@@ -140,6 +119,7 @@ void bagajlariTahliyeEt(Sefer& secilenSefer, unordered_map<string, Yolcu>& yolcu
         cout << sira << ". Tahliye Edilen Bagaj -> ID: " << b.id
              << " | Sahibi: " << sahibi << " (" << b.pnr_sahibi << ")" << endl;
 
+        // Okunan bagajı uçaktan (Yığından) sil
         secilenSefer.kargoBolumu.pop();
         sira++;
     }

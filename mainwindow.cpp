@@ -1,7 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
-
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsTextItem>
+#include <QLineF>
+// Şehirlerin ekrandaki (X, Y) konumlarını tutan harita
+//önemli!!!! rota ıcın eklendı gorsel rota
+// Şehirlerin ekrandaki (X, Y) koordinat haritası (TÜM 18 ŞEHİR EKLENDİ)
+std::map<string, QPointF> sehirKonumlari = {
+    {"Istanbul", {80, 80}},     {"Bursa", {110, 110}},     {"Eskisehir", {180, 140}},
+    {"Ankara", {280, 150}},     {"Izmir", {40, 220}},      {"Mugla", {70, 300}},
+    {"Bodrum", {40, 290}},      {"Antalya", {200, 320}},   {"Konya", {300, 250}},
+    {"Samsun", {400, 60}},      {"Trabzon", {560, 70}},    {"Erzurum", {640, 140}},
+    {"Van", {760, 220}},        {"Adana", {420, 310}},     {"Gaziantep", {500, 320}},
+    {"Sanliurfa", {560, 330}},  {"Diyarbakir", {620, 280}},{"Mardin", {640, 340}}
+};
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWindow)
@@ -185,6 +199,11 @@ void MainWindow::on_btnGeriDon3_clicked() {
     ui->seferNoInput->clear();
 }
 
+
+// Şehirlerin ekrandaki (X, Y) koordinat haritası
+// Bu koordinatları kendi ekran tasarımına göre (View boyutuna göre) değiştirebilirsin.
+
+//---------------rota
 void MainWindow::on_rotaHesaplaBtn_clicked() {
     std::string kalkis = ui->kalkisCombo->currentText().toStdString();
     std::string varis = ui->varisCombo->currentText().toStdString();
@@ -194,7 +213,85 @@ void MainWindow::on_rotaHesaplaBtn_clicked() {
         return;
     }
 
+    // Algoritmayı çalıştır ve arayüze yaz
     std::string sonuc = sistem.enKisaRota(kalkis, varis);
     ui->rotaSonucLabel->setPlainText(QString::fromStdString(sonuc));
-}
 
+    // Görselleştirmeyi tetikle
+    grafiGorsellestir(sonuc);
+}
+void MainWindow::grafiGorsellestir(string rotaSonucu) {
+    QGraphicsScene* scene = new QGraphicsScene(this);
+    ui->graphicsView->setScene(scene);
+
+    auto& graf = sistem.getGraf();
+
+    // 1. ADIM: Tüm yolları (Graf kenarlarını) ince, soluk gri çizgilerle çiz
+    for (auto const& [sehir, komsular] : graf) {
+        for (auto const& komsu : komsular) {
+            if (sehirKonumlari.count(sehir) > 0 && sehirKonumlari.count(komsu.first) > 0) {
+                QLineF line(sehirKonumlari[sehir], sehirKonumlari[komsu.first]);
+                scene->addLine(line, QPen(QColor(100, 100, 100, 150), 1));
+            }
+        }
+    }
+
+    // 2. ADIM: Gelen metni temizle ("En Kisa Rota: Ankara -> Antalya\nMesafe..." içinden sadece şehirleri al)
+    QString hamMetin = QString::fromStdString(rotaSonucu);
+    QString sadeceRota = hamMetin;
+
+    if (hamMetin.contains("Rota: ")) {
+        int baslangic = hamMetin.indexOf("Rota: ") + 6;
+        int bitis = hamMetin.indexOf("\n", baslangic);
+        if (bitis == -1) bitis = hamMetin.length();
+        sadeceRota = hamMetin.mid(baslangic, bitis - baslangic);
+    }
+
+    QStringList duraklar = sadeceRota.split(" -> ");
+
+    // 3. ADIM: Dijkstra'nın geçtiği rotadaki çizgileri KALIN ve KIRMIZI yap
+    for (int i = 0; i < duraklar.size() - 1; ++i) {
+        string mevcut = duraklar[i].trimmed().toStdString();
+        string sonraki = duraklar[i+1].trimmed().toStdString();
+
+        if (sehirKonumlari.count(mevcut) > 0 && sehirKonumlari.count(sonraki) > 0) {
+            QLineF rotaLine(sehirKonumlari[mevcut], sehirKonumlari[sonraki]);
+            // Çizgiyi kırmızı ve daha kalın (5) yapıyoruz
+            scene->addLine(rotaLine, QPen(Qt::red, 5, Qt::SolidLine, Qt::RoundCap));
+        }
+    }
+
+    // 4. ADIM: Şehir düğümlerini (Node) çiz
+    for (auto const& [isim, nokta] : sehirKonumlari) {
+
+        // Bu şehir rotamızın içinde geçiyor mu diye kontrol et
+        bool rotadaMi = false;
+        for (const QString& durak : duraklar) {
+            if (durak.trimmed().toStdString() == isim) {
+                rotadaMi = true;
+                break;
+            }
+        }
+
+        // Rotadaki şehirleri KIRMIZI ve daha BÜYÜK (24px) yap, diğerlerini koyu mavi (16px) bırak
+        QColor renk = rotadaMi ? Qt::red : QColor(20, 40, 80);
+        int cap = rotadaMi ? 24 : 16;
+        int offset = cap / 2;
+
+        scene->addEllipse(nokta.x() - offset, nokta.y() - offset, cap, cap, QPen(Qt::white, 2), QBrush(renk));
+
+        // Şehir ismini yazdır
+        QGraphicsTextItem* text = scene->addText(QString::fromStdString(isim));
+        text->setPos(nokta.x() + offset, nokta.y() + offset - 10);
+
+        // Rotadaki şehirlerin ismini beyaz ve KALIN yap, diğerleri gri kalsın
+        if (rotadaMi) {
+            text->setDefaultTextColor(Qt::white);
+            QFont font = text->font();
+            font.setBold(true);
+            text->setFont(font);
+        } else {
+            text->setDefaultTextColor(Qt::gray);
+        }
+    }
+}
