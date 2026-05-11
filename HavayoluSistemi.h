@@ -16,15 +16,15 @@
 
 using namespace std;
 
-// ==============================================================================
+
 // HAVAYOLU SİSTEMİ SINIFI (Ana Yönetim Sınıfı - Controller)
 // Bu sınıf, sistemdeki tüm veri yapılarını (Graph, Hash Table, Tree, Stack, Queue)
 // merkezden yöneten ana orkestra şefidir. Nesne Yönelimli Programlama (OOP)
 // prensiplerine uygun olarak Kapsülleme (Encapsulation) kullanılmıştır.
-// ==============================================================================
+
 class HavayoluSistemi {
 private:
-    // --- VERİ YAPILARI (DATA STRUCTURES) ---
+
 
     // 1. Ağaç Tabanlı Harita (Red-Black Tree / std::map)
     // Seferleri sefer numarasına göre sıralı tutar ve O(\log n) hızında erişim sağlar.
@@ -50,13 +50,12 @@ private:
     YolcuNode* yolcuAgaciKoku;
 
 public:
-    // --- CONSTRUCTOR & DESTRUCTOR ---
+
     // Constructor: Program açılır açılmaz tüm text verilerini (Veritabanını) belleğe çeker.
     HavayoluSistemi();
     // Destructor: Program kapanırken dinamik oluşturulan (new) tüm pointer'ları silip belleği iade eder.
     ~HavayoluSistemi();
 
-    // --- TEMEL FONKSİYONLAR (Veri İçe Aktarma) ---
     void yolculariYukle();   // PNR kayıtlarını Hash Table'a atar.
     void seferleriYukle();   // Seferleri kurup yolcuları Linked List (Bağlı Liste) ile vagon gibi ekler.
     void bagajlariYukle();   // Kargo sistemini başlatıp bagajları uçakların Stack (Yığın) yapısına iter.
@@ -65,7 +64,6 @@ public:
     // Kapsülleme (Encapsulation) ilkesi gereği private olan Kule'ye güvenli erişim sağlar.
     KuleYonetimi& getKule() { return kuleYonetimi; }
 
-    // --- ALGORİTMALAR VE İŞLEMLER ---
     std::string siradakiUcagiIndir();                // Kuyruktan uçağı çeker (Pop).
     string enKisaRota(string kalkis, string varis);  // Dijkstra algoritması ile düğümler arası en kısa yolu hesaplar.
     Yolcu pnrIleYolcuBul(string pnr);                // Hash Table (O(1)) veya Tree üzerinden PNR eşleşmesi yapar.

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QGraphicsScene> // EKLENDİ: Sahne kütüphanesi
+#include <string>         // EKLENDİ: std::string kullanımı için
 #include "HavayoluSistemi.h"
 
 QT_BEGIN_NAMESPACE
@@ -17,6 +19,7 @@ public:
     ~MainWindow();
 
 private slots:
+    // SADECE BUTON TIKLAMALARI VE SİNYALLER BURADA DURUR
     // --- Sayfa Geçiş Butonları ---
     void on_btnKuleGit_clicked();
     void on_btnRotaGit_clicked();
@@ -32,12 +35,17 @@ private slots:
     void on_rotaHesaplaBtn_clicked();
 
     // --- Dinamik Filtreleme ---
-    void on_kalkisCombo_currentTextChanged(const QString &arg1);  // Doğrusu bu olmalı
+    void on_kalkisCombo_currentTextChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
     HavayoluSistemi sistem;
-    void guncelleUcakTablosu();
+
+    //------------------------rota
+    // DÜZELTİLDİ: Normal değişkenler ve fonksiyonlar "private" altına alındı!
+    QGraphicsScene *sahne;
+    void grafiGorsellestir(std::string rota);
+    //------------------------------rotA
 };
 
-#endif // MAINWINDOW_H-
+#endif // MAINWINDOW_H
