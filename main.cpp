@@ -90,7 +90,7 @@ void yolcu100kUret() {
     }
 }
 void yolcu500kUret() {
-    // Proje klasöründe yolcular_1k.txt adında bir dosya oluşturur
+    // Proje klasöründe yolcular_500k.txt adında bir dosya oluşturur
     std::ofstream dosya("yolcular_50000k.txt");
 
     if (!dosya.is_open()) {
