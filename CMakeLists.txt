@@ -25,6 +25,7 @@ add_executable(Havalimani_Yonetim_Sistemi1
         mainwindow.cpp
         mainwindow.h
         kuleYonetimi.h
+        PerformansOlcer.cpp
 )
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

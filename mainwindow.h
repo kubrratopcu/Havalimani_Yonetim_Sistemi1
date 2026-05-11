@@ -37,6 +37,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     HavayoluSistemi sistem;
+    void guncelleUcakTablosu();
 };
 
 #endif // MAINWINDOW_H-
