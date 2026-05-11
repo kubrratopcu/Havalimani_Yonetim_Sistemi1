@@ -18,6 +18,8 @@ Ankara,Denizli,480
 Ankara,Mugla,600
 Ankara,Sivas,440
 Ankara,Malatya,650
+Ankara,Aksaray,225
+Ankara,Edirne,680
 Istanbul,Bursa,150
 Istanbul,Izmir,480
 Istanbul,Antalya,720
@@ -118,8 +120,4 @@ Samsun,Sinop,160
 Samsun,Ordu,150
 Samsun,Amasya,130
 Samsun,Corum,170
-Ankara,Aksaray,225
-Adana,Nigde,200
 Nigde,Aksaray,120
-Istanbul,Edirne,240
-Ankara,Edirne,680
