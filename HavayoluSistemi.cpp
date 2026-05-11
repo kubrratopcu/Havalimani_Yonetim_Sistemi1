@@ -220,11 +220,44 @@ void HavayoluSistemi::rotalariYukle() {
     ifstream dosya("rotalar.txt");
     string satir;
     if (!dosya.is_open()) return;
+
     while (getline(dosya, satir)) {
+        // Windows görünmez satır sonu (\r) temizleme
+        if (!satir.empty() && satir.back() == '\r') {
+            satir.pop_back();
+        }
+
         stringstream ss(satir);
         string k, h, m;
-        getline(ss, k, ','); getline(ss, h, ','); getline(ss, m, ',');
-        if (!k.empty()) graf[k].push_back({h, stoi(m)});
+        getline(ss, k, ',');
+        getline(ss, h, ',');
+        getline(ss, m, ',');
+
+        // 1. Şehir isimlerinin başındaki ve sonundaki görünmez boşlukları TIRAŞLA
+        if(!k.empty()) {
+            k.erase(0, k.find_first_not_of(" \t"));
+            k.erase(k.find_last_not_of(" \t") + 1);
+        }
+        if(!h.empty()) {
+            h.erase(0, h.find_first_not_of(" \t"));
+            h.erase(h.find_last_not_of(" \t") + 1);
+        }
+
+        // 2. Mesafe (m) içindeki tüm boşlukları temizlemenin KESİN ve RİSKSİZ yolu (remove_if hatasını çözer)
+        string temizM = "";
+        for (char c : m) {
+            if (!isspace(c)) {
+                temizM += c;
+            }
+        }
+        m = temizM;
+
+        // 3. ÇİFT YÖNLÜ (GİDİŞ-DÖNÜŞ) ROTA EKLEME
+        if (!k.empty() && !h.empty() && !m.empty()) {
+            int mesafe = stoi(m);
+            graf[k].push_back({h, mesafe}); // Kalkıştan Varışa
+            graf[h].push_back({k, mesafe}); // Varıştan Kalkışa (Dönüş rotası)
+        }
     }
     dosya.close();
 }
