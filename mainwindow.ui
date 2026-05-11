@@ -16,22 +16,22 @@
   <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>60</y>
+     <x>30</x>
+     <y>50</y>
      <width>1131</width>
      <height>751</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="sayfaAnaMenu">
     <widget class="QPushButton" name="btnYolcularGit">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>361</y>
-       <width>771</width>
+       <x>0</x>
+       <y>300</y>
+       <width>551</width>
        <height>26</height>
       </rect>
      </property>
@@ -42,9 +42,9 @@
     <widget class="QPushButton" name="btnRotaGit">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>553</y>
-       <width>771</width>
+       <x>0</x>
+       <y>450</y>
+       <width>541</width>
        <height>26</height>
       </rect>
      </property>
@@ -55,9 +55,9 @@
     <widget class="QPushButton" name="btnKuleGit">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>169</y>
-       <width>771</width>
+       <x>0</x>
+       <y>140</y>
+       <width>551</width>
        <height>26</height>
       </rect>
      </property>
@@ -70,9 +70,9 @@
     <widget class="QTableWidget" name="tableWidget_2">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>60</y>
-       <width>531</width>
+       <x>30</x>
+       <y>40</y>
+       <width>421</width>
        <height>391</height>
       </rect>
      </property>
@@ -100,8 +100,8 @@
     <widget class="QPushButton" name="kuleIndirBtn">
      <property name="geometry">
       <rect>
-       <x>660</x>
-       <y>220</y>
+       <x>490</x>
+       <y>250</y>
        <width>134</width>
        <height>26</height>
       </rect>
@@ -113,8 +113,8 @@
     <widget class="QPushButton" name="btnGeriDonKule">
      <property name="geometry">
       <rect>
-       <x>680</x>
-       <y>500</y>
+       <x>530</x>
+       <y>480</y>
        <width>109</width>
        <height>26</height>
       </rect>

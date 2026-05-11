@@ -1,4 +1,4 @@
-Kubra,Yilmaz,PNR001,01A
+Ayça,Yilmaz,PNR001,01A
 Sude,Kaya,PNR002,01B
 Beyza,Demir,PNR003,02A
 Adem,Sahin,PNR004,02B
